@@ -18,10 +18,12 @@ import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
 
-public class GremlinPlugin implements Plugin {
-
+public class GremlinPlugin
+        implements Plugin
+{
     @Override
-    public Set<Class<?>> getFunctions() {
+    public Set<Class<?>> getFunctions()
+    {
         return ImmutableSet.<Class<?>>builder()
                 .add(GremlinOperators.class)
                 .build();

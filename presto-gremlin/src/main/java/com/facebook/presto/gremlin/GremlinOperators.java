@@ -13,32 +13,34 @@
  */
 package com.facebook.presto.gremlin;
 
-import com.facebook.presto.spi.function.*;
-import io.airlift.slice.Slice;
+import com.facebook.presto.spi.function.Description;
+import com.facebook.presto.spi.function.ScalarFunction;
+import com.facebook.presto.spi.function.SqlType;
 import com.facebook.presto.spi.type.StandardTypes;
+import io.airlift.slice.Slice;
 import org.apache.tinkerpop.gremlin.driver.Result;
 import org.apache.tinkerpop.gremlin.driver.ResultSet;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @ScalarFunction("graphQuery")
 @Description("Graph query function")
-public final class GremlinOperators {
-
+public final class GremlinOperators
+{
     private GremlinOperators()
-    {
-    }
+    {}
 
     @SqlType(StandardTypes.INTEGER)
 
-    public static int graphQuery(@SqlType(StandardTypes.VARCHAR) Slice input){
-
+    public static int graphQuery(@SqlType(StandardTypes.VARCHAR) Slice input)
+    {
         //String gremlin = input.toStringUtf8();
         return graphConnect(input);
     }
 
-
-    public static int graphConnect(@SqlType(StandardTypes.VARCHAR) Slice input){
+    public static int graphConnect(@SqlType(StandardTypes.VARCHAR) Slice input)
+    {
         String gremlin = input.toStringUtf8();
 
         //connect to Tinkerpop Gremlin
@@ -46,9 +48,9 @@ public final class GremlinOperators {
         ResultSet rs = gc.gremlinExecute(gremlin);
 
         //Gets the number of rows in the resultset
-        Map<Object , Object> map = new HashMap<Object, Object>();
-        for(Result r : rs){
-            map = (Map<Object, Object>)r.getObject();
+        Map<Object, Object> map = new HashMap<Object, Object>();
+        for (Result r : rs) {
+            map = (Map<Object, Object>) r.getObject();
         }
 
         return map.size();

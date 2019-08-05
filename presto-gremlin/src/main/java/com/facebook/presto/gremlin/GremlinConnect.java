@@ -18,12 +18,13 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.driver.Client;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
 import org.apache.tinkerpop.gremlin.driver.ResultSet;
+
 import java.util.concurrent.CompletableFuture;
 
-public class GremlinConnect{
-
-    public ResultSet gremlinExecute(String input){
-
+public class GremlinConnect
+{
+    public ResultSet gremlinExecute(String input)
+    {
         Configuration configuration = new BaseConfiguration();
         configuration.addProperty("hosts", "10.77.110.131");
         configuration.addProperty("port", "8182"); //TODO
@@ -34,7 +35,8 @@ public class GremlinConnect{
 
         try {
             return future.get();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             //TODO
             return null;
             // throw new PrestoException(JDBC_ERROR, e);
