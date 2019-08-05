@@ -27,7 +27,11 @@ public class GremlinConnect
     {
         Configuration configuration = new BaseConfiguration();
         configuration.addProperty("hosts", "10.77.110.131");
-        configuration.addProperty("port", "8182"); //TODO
+        configuration.addProperty("port", 8182);
+        configuration.addProperty("serializer.className",
+                "org.apache.tinkerpop.gremlin.driver.ser.GryoLiteMessageSerializerV1d0");
+        configuration.addProperty("serializer.config.serializeResultToString",
+                false);
 
         Cluster cluster = Cluster.open(configuration);
         Client client = cluster.connect();

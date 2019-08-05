@@ -33,13 +33,13 @@ public final class GremlinOperators
 
     @SqlType(StandardTypes.INTEGER)
 
-    public static int graphQuery(@SqlType(StandardTypes.VARCHAR) Slice input)
+    public static long graphQuery(@SqlType(StandardTypes.VARCHAR) Slice input)
     {
         //String gremlin = input.toStringUtf8();
         return graphConnect(input);
     }
 
-    public static int graphConnect(@SqlType(StandardTypes.VARCHAR) Slice input)
+    public static long graphConnect(@SqlType(StandardTypes.VARCHAR) Slice input)
     {
         String gremlin = input.toStringUtf8();
 
