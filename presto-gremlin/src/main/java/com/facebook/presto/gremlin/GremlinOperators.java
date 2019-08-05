@@ -34,11 +34,9 @@ public final class GremlinOperators {
     public static int graphQuery(@SqlType(StandardTypes.VARCHAR) Slice input){
 
         //String gremlin = input.toStringUtf8();
-
         return graphConnect(input);
     }
 
-    @SqlType(StandardTypes.VARCHAR)
 
     public static int graphConnect(@SqlType(StandardTypes.VARCHAR) Slice input){
         String gremlin = input.toStringUtf8();
