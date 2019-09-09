@@ -470,6 +470,17 @@ public class PlanFragmenter
             }
         }
 
+        @Override
+        public PlanNode visitGremlin(GremlinNode node,RewriteContext<FragmentProperties> context)
+        {
+            PartitioningHandle partitioning = metadata.getLayout(session, node.getTable())
+                    .getTablePartitioning()
+                    .map(TablePartitioning::getPartitioningHandle)
+                    .orElse(SOURCE_DISTRIBUTION);
+            context.get().addSourceDistribution(node.getId(), partitioning, metadata, session);
+            return context.defaultRewrite(node, context.get());
+        }
+
         private PlanNode createRemoteStreamingExchange(ExchangeNode exchange, RewriteContext<FragmentProperties> context)
         {
             checkArgument(exchange.getScope() == REMOTE_STREAMING, "Unexpected exchange scope: %s", exchange.getScope());

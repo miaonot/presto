@@ -36,6 +36,7 @@ import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeIdAllocator;
 import com.facebook.presto.spi.plan.TableScanNode;
 import com.facebook.presto.spi.plan.ValuesNode;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.predicate.TupleDomain;
 import com.facebook.presto.spi.relation.VariableReferenceExpression;
 import com.facebook.presto.spi.statistics.TableStatisticsMetadata;
@@ -69,6 +70,7 @@ import com.facebook.presto.sql.tree.CreateTableAsSelect;
 import com.facebook.presto.sql.tree.Delete;
 import com.facebook.presto.sql.tree.Explain;
 import com.facebook.presto.sql.tree.Expression;
+import com.facebook.presto.sql.tree.Gremlin;
 import com.facebook.presto.sql.tree.Identifier;
 import com.facebook.presto.sql.tree.Insert;
 import com.facebook.presto.sql.tree.LambdaArgumentDeclaration;
@@ -77,6 +79,8 @@ import com.facebook.presto.sql.tree.NullLiteral;
 import com.facebook.presto.sql.tree.Query;
 import com.facebook.presto.sql.tree.Statement;
 import com.facebook.presto.sql.tree.SymbolReference;
+import com.facebook.presto.testing.TestingMetadata;
+import com.facebook.presto.testing.TestingTransactionHandle;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -95,6 +99,7 @@ import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.statistics.TableStatisticType.ROW_COUNT;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
+import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.sql.planner.plan.AggregationNode.singleGroupingSet;
 import static com.facebook.presto.sql.planner.plan.TableWriterNode.CreateName;
 import static com.facebook.presto.sql.planner.plan.TableWriterNode.InsertReference;
@@ -176,10 +181,11 @@ public class LogicalPlanner
 
     public Plan plan(Analysis analysis, Stage stage)
     {
+
         PlanNode root = planStatement(analysis, analysis.getStatement());
-
+        //验证执行计划有效
         planSanityChecker.validateIntermediatePlan(root, session, metadata, sqlParser, variableAllocator.getTypes(), warningCollector);
-
+        //优化器
         if (stage.ordinal() >= Stage.OPTIMIZED.ordinal()) {
             for (PlanOptimizer optimizer : planOptimizers) {
                 root = optimizer.optimize(root, session, variableAllocator.getTypes(), variableAllocator, idAllocator, warningCollector);
@@ -218,6 +224,10 @@ public class LogicalPlanner
                     ImmutableList.of(variable),
                     ImmutableList.of(ImmutableList.of(constant(0L, BIGINT))));
             return new OutputNode(idAllocator.getNextId(), source, ImmutableList.of("rows"), ImmutableList.of(variable));
+        }
+
+        if(statement instanceof Gremlin){
+            return createGremlinPlan(analysis, (Gremlin) statement);
         }
         return createOutputPlan(planStatementWithoutOutput(analysis, statement), analysis);
     }
@@ -259,6 +269,21 @@ public class LogicalPlanner
         VariableReferenceExpression outputVariable = variableAllocator.newVariable(scope.getRelationType().getFieldByIndex(0));
         root = new ExplainAnalyzeNode(idAllocator.getNextId(), root, outputVariable, statement.isVerbose());
         return new RelationPlan(root, scope, ImmutableList.of(outputVariable));
+    }
+
+    private PlanNode createGremlinPlan(Analysis analysis, Gremlin gremlinStatement)
+    {
+        VariableReferenceExpression variable = new VariableReferenceExpression("gremlinstatement", VARCHAR);
+
+        PlanNodeId GREMLIN_NODE_ID = new PlanNodeId("gremlin_id");
+        ConnectorId CONNECTOR_ID = new ConnectorId("gremlin_connector_id");
+
+        GremlinNode gremlinNode = new GremlinNode(
+                GREMLIN_NODE_ID,
+                new TableHandle(CONNECTOR_ID, new TestingMetadata.TestingTableHandle(), TestingTransactionHandle.create(), Optional.empty()),
+                ImmutableList.of(variable),
+                ImmutableMap.of(variable, new TestingMetadata.TestingColumnHandle("gremlinstatement")));
+        return gremlinNode;
     }
 
     private RelationPlan createAnalyzePlan(Analysis analysis, Analyze analyzeStatement)
