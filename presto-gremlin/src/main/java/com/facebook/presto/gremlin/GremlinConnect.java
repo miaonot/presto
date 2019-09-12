@@ -17,8 +17,6 @@ import org.apache.tinkerpop.gremlin.driver.Client;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
 import org.apache.tinkerpop.gremlin.driver.ResultSet;
 
-import java.util.concurrent.CompletableFuture;
-
 public class GremlinConnect
 {
     public ResultSet gremlinExecute(String input)
