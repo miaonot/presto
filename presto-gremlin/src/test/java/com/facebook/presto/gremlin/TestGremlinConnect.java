@@ -13,8 +13,11 @@
  */
 package com.facebook.presto.gremlin;
 
+import org.apache.tinkerpop.gremlin.driver.Result;
 import org.apache.tinkerpop.gremlin.driver.ResultSet;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.testng.Assert.assertNotNull;
 
@@ -23,8 +26,17 @@ public class TestGremlinConnect
     @Test
     public void testGremlinExecute()
     {
-        GremlinConnect gremlinConnect = new GremlinConnect();
-        ResultSet resultSet = gremlinConnect.gremlinExecute("g = hugegraph.traversal(); g.V()");
-        assertNotNull(resultSet);
+        try {
+            GremlinConnect gremlinConnect = new GremlinConnect();
+//            ResultSet resultSet = gremlinConnect.gremlinExecute("hugegraph.traversal().V().as('a').repeat(out().simplePath()).times(2).where(out().as('a')).path()");
+            ResultSet resultSet = gremlinConnect.gremlinExecute("hugegraph.traversal().V().hasLabel('person').limit(1).properties().key()");
+//            ResultSet resultSet = gremlinConnect.gremlinExecute("1+1");
+            assertNotNull(resultSet);
+            List<Result> results = resultSet.all().join();
+            System.out.println(results.toString());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

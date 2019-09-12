@@ -13,8 +13,6 @@
  */
 package com.facebook.presto.gremlin;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.driver.Client;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
 import org.apache.tinkerpop.gremlin.driver.ResultSet;
@@ -25,23 +23,28 @@ public class GremlinConnect
 {
     public ResultSet gremlinExecute(String input)
     {
-        Configuration configuration = new BaseConfiguration();
-        configuration.addProperty("hosts", "10.77.110.131");
-        configuration.addProperty("port", 8182);
-        configuration.addProperty("serializer.className",
-                "org.apache.tinkerpop.gremlin.driver.ser.GryoLiteMessageSerializerV1d0");
-        configuration.addProperty("serializer.config.serializeResultToString",
-                false);
+//        Configuration configuration = new BaseConfiguration();
+//        configuration.addProperty("hosts", "10.77.110.131");
+//        configuration.addProperty("port", 8182);
+//        configuration.addProperty("serializer.className",
+//                "org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerGremlinV2d0");
+//        configuration.addProperty("serializer.config.serializeResultToString",
+//                false);
+//        List<String> ioRegistries = new ArrayList<>();
+//        ioRegistries.add("com.baidu.hugegraph.io.HugeGraphIoRegistry");
+//        configuration.addProperty("serializer.config.ioRegistries", ioRegistries);
 
-        Cluster cluster = Cluster.open(configuration);
-        Client client = cluster.connect();
-        CompletableFuture<ResultSet> future = client.submitAsync(input);
-
+//        Cluster cluster = Cluster.open(configuration);
         try {
-            return future.get();
+            Cluster cluster = Cluster.open("../presto-main/etc/catalog/hugegraph.yaml");
+            Client client = cluster.connect();
+            ResultSet resultSet = client.submit(input);
+//            CompletableFuture<ResultSet> future = client.submitAsync(input);
+//            return future.get();
+            return resultSet;
         }
         catch (Exception e) {
-            //TODO
+            e.printStackTrace();
             return null;
             // throw new PrestoException(JDBC_ERROR, e);
         }

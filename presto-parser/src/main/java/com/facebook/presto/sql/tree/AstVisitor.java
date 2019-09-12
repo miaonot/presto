@@ -427,6 +427,11 @@ public abstract class AstVisitor<R, C>
         return visitRelation(node, context);
     }
 
+    protected R visitGremlin(Gremlin node, C context)
+    {
+        return visitRelation(node, context);
+    }
+
     protected R visitValues(Values node, C context)
     {
         return visitQueryBody(node, context);
@@ -760,5 +765,10 @@ public abstract class AstVisitor<R, C>
     protected R visitCurrentPath(CurrentPath node, C context)
     {
         return visitExpression(node, context);
+    }
+
+    protected R visitGremlins(Gremlins node, C context)
+    {
+        return visitStatement(node, context);
     }
 }

@@ -102,6 +102,8 @@ import com.facebook.presto.sql.tree.Unnest;
 import com.facebook.presto.sql.tree.Values;
 import com.facebook.presto.sql.tree.With;
 import com.facebook.presto.sql.tree.WithQuery;
+import com.facebook.presto.sql.tree.Gremlin;
+import com.facebook.presto.sql.tree.Gremlins;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
@@ -1305,6 +1307,40 @@ public final class SqlFormatter
             else {
                 process(relation, indent);
             }
+        }
+
+//        @Override
+//        protected Void visitGremlin(Gremlin node, Integer context)
+//        {
+//            builder.append("GREMLIN");
+//            if (node.getSentence().isPresent()) {
+//                builder.append("\nSENTENCE " + formatStringLiteral(node.getSentence().get1``()));
+//            }
+//            builder.append(formatSentenceSingleLine(node.getSentence()));
+//            if (node.isWithGremlinOption()) {
+//                builder.append(" WITH GRANT OPTION");
+//            }
+//            return null;
+//        }
+//
+//        private String formatSentenceSingleLine(List<Gremlin> Sentence)
+//        {
+//            if (Sentence.isEmpty()) {
+//                return "";
+//            }
+//
+//            String SentenceList = Sentence.stream()
+//                    .map(element -> formatExpression(element.getName(), parameters) + " = " +
+//                            formatExpression(element.getValue(), parameters))
+//                    .collect(joining(", "));
+//
+//            return " WITH ( " + SentenceList + " )";
+//        }
+
+        protected Void visitGremlins(Gremlins node, Integer context)
+        {
+            builder.append("GREMLINS");
+            return null;
         }
 
         private StringBuilder append(int indent, String value)

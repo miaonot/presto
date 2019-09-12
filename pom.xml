@@ -117,6 +117,7 @@
         <module>presto-tests</module>
         <module>presto-product-tests</module>
         <module>presto-jdbc</module>
+        <module>presto-hugegraph</module>
         <module>presto-cli</module>
         <module>presto-benchmark-driver</module>
         <module>presto-server</module>

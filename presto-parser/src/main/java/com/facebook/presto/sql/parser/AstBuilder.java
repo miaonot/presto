@@ -69,6 +69,7 @@ import com.facebook.presto.sql.tree.GenericLiteral;
 import com.facebook.presto.sql.tree.Grant;
 import com.facebook.presto.sql.tree.GrantRoles;
 import com.facebook.presto.sql.tree.GrantorSpecification;
+import com.facebook.presto.sql.tree.Gremlin;
 import com.facebook.presto.sql.tree.GroupBy;
 import com.facebook.presto.sql.tree.GroupingElement;
 import com.facebook.presto.sql.tree.GroupingOperation;
@@ -1088,6 +1089,13 @@ class AstBuilder
     public Node visitParenthesizedRelation(SqlBaseParser.ParenthesizedRelationContext context)
     {
         return visit(context.relation());
+    }
+
+    @Override
+    public Node visitGremlin(SqlBaseParser.GremlinContext context)
+    {
+        String sentence = ((StringLiteral) visit(context.string())).getValue();
+        return new Gremlin(getLocation(context), sentence);
     }
 
     // ********************* predicates *******************

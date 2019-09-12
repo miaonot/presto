@@ -11,37 +11,45 @@ import java.util.Optional;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
-public class Gremlin
-        extends Relation
+public class Gremlins
+        extends Statement
 {
-    private final String Sentence;
+    private final Optional<List<String>> Sentence;
+    private final boolean withGremlinsOption;
 
-    public Gremlin(String Sentence)
+    public Gremlins(Optional<List<String>> Sentence, boolean withGremlinsOption)
     {
-        this(Optional.empty(), Sentence);
+        this(Optional.empty(), Sentence, withGremlinsOption);
     }
 
-    public Gremlin(NodeLocation location, String Sentence)
+    public Gremlins(NodeLocation location,Optional<List<String>> Sentence, boolean withGremlinsOption)
     {
-        this(Optional.of(location), Sentence);
+        this(Optional.of(location), Sentence, withGremlinsOption);
     }
 
-    private Gremlin(Optional<NodeLocation> location, String Sentence)
+    private Gremlins(Optional<NodeLocation> location, Optional<List<String>> Sentence, boolean withGremlinsOption)
     {
         super(location);
         requireNonNull(Sentence, "sentence is null");
-        this.Sentence = Sentence;
+        this.Sentence = Sentence.map(ImmutableList::copyOf);
+        this.withGremlinsOption = withGremlinsOption;
     }
 
-    public String getSentence()
+    public Optional<List<String>> getSentence()
     {
         return Sentence;
     }
 
+    public boolean isWithGremlinsOption()
+    {
+        return withGremlinsOption;
+    }
+
+
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
-        return visitor.visitGremlin(this, context);
+        return visitor.visitGremlins(this, context);
     }
 
     @Override
@@ -53,7 +61,7 @@ public class Gremlin
     @Override
     public int hashCode()
     {
-        return Objects.hash(Sentence);
+        return Objects.hash(Sentence, withGremlinsOption);
     }
 
     @Override
@@ -65,8 +73,9 @@ public class Gremlin
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        Gremlin o = (Gremlin) obj;
-        return Objects.equals(Sentence, o.Sentence);
+        Gremlins o = (Gremlins) obj;
+        return Objects.equals(Sentence, o.Sentence)&&
+                Objects.equals(withGremlinsOption, o.withGremlinsOption);
     }
 
     @Override

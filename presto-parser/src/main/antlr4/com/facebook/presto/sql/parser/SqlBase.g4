@@ -113,6 +113,8 @@ statement
     | DESCRIBE INPUT identifier                                        #describeInput
     | DESCRIBE OUTPUT identifier                                       #describeOutput
     | SET PATH pathSpecification                                       #setPath
+//    | GREMLIN ('['sentence=string']')                                  #gremlin
+    | GREMLINS ('['sentence=string']')                                 #gremlins
     ;
 
 query
@@ -252,6 +254,7 @@ relationPrimary
     | UNNEST '(' expression (',' expression)* ')' (WITH ORDINALITY)?  #unnest
     | LATERAL '(' query ')'                                           #lateral
     | '(' relation ')'                                                #parenthesizedRelation
+    | GREMLIN ('['sentence=string']')                                 #gremlin
     ;
 
 expression
@@ -578,6 +581,8 @@ GRANT: 'GRANT';
 GRANTED: 'GRANTED';
 GRANTS: 'GRANTS';
 GRAPHVIZ: 'GRAPHVIZ';
+GREMLIN: 'GREMLIN';
+GREMLINS: 'GREMLINS';
 GROUP: 'GROUP';
 GROUPING: 'GROUPING';
 HAVING: 'HAVING';
