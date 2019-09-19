@@ -226,9 +226,9 @@ public class LogicalPlanner
             return new OutputNode(idAllocator.getNextId(), source, ImmutableList.of("rows"), ImmutableList.of(variable));
         }
 
-        if(statement instanceof Gremlin){
-            return createGremlinPlan(analysis, (Gremlin) statement);
-        }
+//        if(statement instanceof Gremlin){
+//            return createGremlinPlan(analysis, (Gremlin) statement);
+//        }
         return createOutputPlan(planStatementWithoutOutput(analysis, statement), analysis);
     }
 
@@ -271,20 +271,20 @@ public class LogicalPlanner
         return new RelationPlan(root, scope, ImmutableList.of(outputVariable));
     }
 
-    private PlanNode createGremlinPlan(Analysis analysis, Gremlin gremlinStatement)
-    {
-        VariableReferenceExpression variable = new VariableReferenceExpression("gremlinstatement", VARCHAR);
-
-        PlanNodeId GREMLIN_NODE_ID = new PlanNodeId("gremlin_id");
-        ConnectorId CONNECTOR_ID = new ConnectorId("gremlin_connector_id");
-
-        GremlinNode gremlinNode = new GremlinNode(
-                GREMLIN_NODE_ID,
-                new TableHandle(CONNECTOR_ID, new TestingMetadata.TestingTableHandle(), TestingTransactionHandle.create(), Optional.empty()),
-                ImmutableList.of(variable),
-                ImmutableMap.of(variable, new TestingMetadata.TestingColumnHandle("gremlinstatement")));
-        return gremlinNode;
-    }
+//    private PlanNode createGremlinPlan(Analysis analysis, Gremlin gremlinStatement)
+//    {
+//        VariableReferenceExpression variable = new VariableReferenceExpression("gremlinstatement", VARCHAR);
+//
+//        PlanNodeId GREMLIN_NODE_ID = new PlanNodeId("gremlin_id");
+//        ConnectorId CONNECTOR_ID = new ConnectorId("gremlin_connector_id");
+//
+//        GremlinNode gremlinNode = new GremlinNode(
+//                GREMLIN_NODE_ID,
+//                new TableHandle(CONNECTOR_ID, new TestingMetadata.TestingTableHandle(), TestingTransactionHandle.create(), Optional.empty()),
+//                ImmutableList.of(variable),
+//                ImmutableMap.of(variable, new TestingMetadata.TestingColumnHandle("gremlinstatement")));
+//        return gremlinNode;
+//    }
 
     private RelationPlan createAnalyzePlan(Analysis analysis, Analyze analyzeStatement)
     {

@@ -19,6 +19,7 @@ import com.facebook.presto.metadata.Metadata;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.TableHandle;
 import com.facebook.presto.spi.plan.FilterNode;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeIdAllocator;
 import com.facebook.presto.spi.plan.TableScanNode;
@@ -56,6 +57,7 @@ import com.facebook.presto.sql.tree.DefaultTraversalVisitor;
 import com.facebook.presto.sql.tree.Except;
 import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.ExpressionTreeRewriter;
+import com.facebook.presto.sql.tree.Gremlin;
 import com.facebook.presto.sql.tree.Identifier;
 import com.facebook.presto.sql.tree.InPredicate;
 import com.facebook.presto.sql.tree.Intersect;
@@ -707,6 +709,23 @@ class RelationPlanner
 
         UnnestNode unnestNode = new UnnestNode(idAllocator.getNextId(), valuesNode, ImmutableList.of(), unnestVariables.build(), ordinalityVariable);
         return new RelationPlan(unnestNode, scope, unnestedVariables);
+    }
+
+    @Override
+    protected RelationPlan visitGremlin(Gremlin node, Void context)
+    {
+        Scope scope = analysis.getScope(node);
+        ImmutableList.Builder<VariableReferenceExpression> outputVariablesBuilder = ImmutableList.builder();
+        for (Field field : scope.getRelationType().getVisibleFields()) {
+            outputVariablesBuilder.add(variableAllocator.newVariable(field));
+        }
+        List<VariableReferenceExpression> gremlinVariables = outputVariablesBuilder.build();
+
+        GremlinNode gremlinNode = new GremlinNode(idAllocator.getNextId(), Optional.of(node.getSentence()), gremlinVariables);
+
+//        //TODO: 验证这个地方是否有问题，我怀疑ValuesNode是用来从表里获取数值的，是否需要添加一个新的Node类，或者直接将GremlinNode作为PlanNode。 hong
+//        GremlinNode gremlinNode = new GremlinNode(idAllocator.getNextId(), node.getSentence(), valuesNode, gremlinVariables);
+        return new RelationPlan(gremlinNode, scope, gremlinVariables);
     }
 
     private RelationPlan processAndCoerceIfNecessary(Relation node, Void context)

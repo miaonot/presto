@@ -13,60 +13,40 @@
  */
 package com.facebook.presto.spi.plan;
 
-import com.facebook.presto.spi.ColumnHandle;
-import com.facebook.presto.spi.TableHandle;
 import com.facebook.presto.spi.relation.VariableReferenceExpression;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
 public final class GremlinNode
         extends PlanNode
 {
-    private final TableHandle table;
-    private final Map<VariableReferenceExpression, ColumnHandle> assignments;
+    private final Optional<String> gremlin;
     private final List<VariableReferenceExpression> outputVariables;
 
     @JsonCreator
     public GremlinNode(@JsonProperty("id") PlanNodeId id,
-                      @JsonProperty("table") TableHandle table,
-                      @JsonProperty("outputVariables") List<VariableReferenceExpression> outputVariables,
-                      @JsonProperty("assignments") Map<VariableReferenceExpression, ColumnHandle> assignments)
+                       @JsonProperty("gremlin") Optional<String> gremlin,
+                       @JsonProperty("outputVariables") List<VariableReferenceExpression> outputVariables)
     {
         super(id);
-        this.table = requireNonNull(table, "table is null");
+        this.gremlin = requireNonNull(gremlin, "gremlin is null");
         this.outputVariables = unmodifiableList(requireNonNull(outputVariables, "outputVariables is null"));
-        this.assignments = unmodifiableMap(new HashMap<>(requireNonNull(assignments, "assignments is null")));
-        checkArgument(assignments.keySet().containsAll(outputVariables), "assignments does not cover all of outputs");
     }
 
-    /**
-     * Get the table handle provided by connector
-     */
-    @JsonProperty("table")
-    public TableHandle getTable()
+    @JsonProperty("gremlin")
+    public Optional<String> getGremlin()
     {
-        return table;
-    }
-
-    /**
-     * Get the mapping from symbols to columns
-     */
-    @JsonProperty
-    public Map<VariableReferenceExpression, ColumnHandle> getAssignments()
-    {
-        return assignments;
+        return gremlin;
     }
 
     @Override

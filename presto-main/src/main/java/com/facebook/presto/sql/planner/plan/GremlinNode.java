@@ -65,11 +65,11 @@ public class GremlinNode
         return outputVariables;
     }
 
-    @Override
-    public final <R, C> R accept(InternalPlanVisitor<R, C> visitor, C context)
-    {
-        return visitor.visitGremlin(this, context);
-    }
+//    @Override
+//    public final <R, C> R accept(InternalPlanVisitor<R, C> visitor, C context)
+//    {
+//        return visitor.visitGremlin(this, context);
+//    }
 
     @Override
     public PlanNode replaceChildren(List<PlanNode> newChildren)

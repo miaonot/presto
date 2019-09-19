@@ -17,6 +17,7 @@ import com.facebook.presto.Session;
 import com.facebook.presto.execution.warnings.WarningCollector;
 import com.facebook.presto.metadata.Metadata;
 import com.facebook.presto.spi.plan.FilterNode;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.TableScanNode;
 import com.facebook.presto.spi.plan.ValuesNode;
@@ -537,6 +538,13 @@ public final class ValidateDependenciesChecker
 
             checkDependencies(source.getOutputVariables(), required, "Invalid node. Dependencies (%s) not in source plan output (%s)", required, source.getOutputVariables());
 
+            return null;
+        }
+
+        @Override
+        public Void visitGremlin(GremlinNode node, Set<VariableReferenceExpression> boundVariables)
+        {
+            //TODO: As now only gremlin sentences will be used, we don't have to check. Check it when we can translate SQL to Gremlin. hong
             return null;
         }
 

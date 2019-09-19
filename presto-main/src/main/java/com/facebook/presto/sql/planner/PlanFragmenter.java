@@ -36,6 +36,7 @@ import com.facebook.presto.spi.PrestoWarning;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableHandle;
 import com.facebook.presto.spi.connector.ConnectorPartitionHandle;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeId;
 import com.facebook.presto.spi.plan.PlanNodeIdAllocator;
@@ -471,13 +472,14 @@ public class PlanFragmenter
         }
 
         @Override
-        public PlanNode visitGremlin(GremlinNode node,RewriteContext<FragmentProperties> context)
+        public PlanNode visitGremlin(GremlinNode node, RewriteContext<FragmentProperties> context)
         {
-            PartitioningHandle partitioning = metadata.getLayout(session, node.getTable())
-                    .getTablePartitioning()
-                    .map(TablePartitioning::getPartitioningHandle)
-                    .orElse(SOURCE_DISTRIBUTION);
-            context.get().addSourceDistribution(node.getId(), partitioning, metadata, session);
+            //TODO: No rewrite here now.
+//            PartitioningHandle partitioning = metadata.getLayout(session, node.getTable().get())
+//                    .getTablePartitioning()
+//                    .map(TablePartitioning::getPartitioningHandle)
+//                    .orElse(SOURCE_DISTRIBUTION);
+//            context.get().addSourceDistribution(node.getId(), partitioning, metadata, session);
             return context.defaultRewrite(node, context.get());
         }
 
