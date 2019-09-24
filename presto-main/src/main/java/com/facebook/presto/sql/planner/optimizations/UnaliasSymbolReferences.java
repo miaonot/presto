@@ -17,6 +17,7 @@ import com.facebook.presto.Session;
 import com.facebook.presto.execution.warnings.WarningCollector;
 import com.facebook.presto.spi.block.SortOrder;
 import com.facebook.presto.spi.plan.FilterNode;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeIdAllocator;
 import com.facebook.presto.spi.plan.TableScanNode;
@@ -189,6 +190,13 @@ public class UnaliasSymbolReferences
                 builder.put(canonicalize(entry.getKey()), entry.getValue());
             }
             return new UnnestNode(node.getId(), source, canonicalizeAndDistinct(node.getReplicateVariables()), builder.build(), node.getOrdinalityVariable());
+        }
+
+        @Override
+        public PlanNode visitGremlin(GremlinNode node, RewriteContext<Void> context)
+        {
+            //Gremlin don't have any sources, so just return itself.
+            return node;
         }
 
         @Override

@@ -25,6 +25,7 @@ import com.facebook.presto.spi.GroupingProperty;
 import com.facebook.presto.spi.LocalProperty;
 import com.facebook.presto.spi.SortingProperty;
 import com.facebook.presto.spi.plan.FilterNode;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.TableScanNode;
 import com.facebook.presto.spi.plan.ValuesNode;
@@ -710,6 +711,14 @@ public class PropertyDerivations
 
         @Override
         public ActualProperties visitValues(ValuesNode node, List<ActualProperties> context)
+        {
+            return ActualProperties.builder()
+                    .global(singleStreamPartition())
+                    .build();
+        }
+
+        @Override
+        public ActualProperties visitGremlin(GremlinNode node, List<ActualProperties> context)
         {
             return ActualProperties.builder()
                     .global(singleStreamPartition())

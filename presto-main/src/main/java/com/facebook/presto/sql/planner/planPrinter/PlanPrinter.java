@@ -28,6 +28,7 @@ import com.facebook.presto.spi.ConnectorTableLayoutHandle;
 import com.facebook.presto.spi.TableHandle;
 import com.facebook.presto.spi.function.FunctionHandle;
 import com.facebook.presto.spi.plan.FilterNode;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeId;
 import com.facebook.presto.spi.plan.TableScanNode;
@@ -824,6 +825,16 @@ public class PlanPrinter
                     "Unnest",
                     format("[replicate=%s, unnest=%s]", formatOutputs(node.getReplicateVariables()), formatOutputs(node.getUnnestVariables().keySet())));
             return processChildren(node, context);
+        }
+
+        @Override
+        public Void visitGremlin(GremlinNode node, Void context)
+        {
+            Optional<String> sentence = node.getGremlin();
+            NodeRepresentation nodeOutput = addNode(node,
+                        "Gremlin",
+                        format("[%s]", sentence));
+            return null;
         }
 
         @Override

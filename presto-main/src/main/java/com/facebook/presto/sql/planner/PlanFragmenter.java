@@ -474,12 +474,13 @@ public class PlanFragmenter
         @Override
         public PlanNode visitGremlin(GremlinNode node, RewriteContext<FragmentProperties> context)
         {
-            //TODO: No rewrite here now.
+            //Hong: GremlinNode should always be a single node, so rewrite it as ValueNode.
 //            PartitioningHandle partitioning = metadata.getLayout(session, node.getTable().get())
 //                    .getTablePartitioning()
 //                    .map(TablePartitioning::getPartitioningHandle)
 //                    .orElse(SOURCE_DISTRIBUTION);
 //            context.get().addSourceDistribution(node.getId(), partitioning, metadata, session);
+            context.get().setSingleNodeDistribution();
             return context.defaultRewrite(node, context.get());
         }
 

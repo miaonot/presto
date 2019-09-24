@@ -23,6 +23,7 @@ import com.facebook.presto.spi.LocalProperty;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SortingProperty;
 import com.facebook.presto.spi.plan.FilterNode;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeIdAllocator;
 import com.facebook.presto.spi.plan.TableScanNode;
@@ -865,6 +866,12 @@ public class AddExchanges
             PreferredProperties translatedPreferred = preferredProperties.translate(variable -> node.getReplicateVariables().contains(variable) ? Optional.of(variable) : Optional.empty());
 
             return rebaseAndDeriveProperties(node, planChild(node, translatedPreferred));
+        }
+
+        @Override
+        public PlanWithProperties visitGremlin(GremlinNode node, PreferredProperties preferredProperties)
+        {
+            return new PlanWithProperties(node);
         }
 
         @Override

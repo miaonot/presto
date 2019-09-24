@@ -19,6 +19,7 @@ import com.facebook.presto.metadata.TableLayout;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.LocalProperty;
 import com.facebook.presto.spi.plan.FilterNode;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.TableScanNode;
 import com.facebook.presto.spi.plan.ValuesNode;
@@ -247,6 +248,12 @@ public final class StreamPropertyDerivations
         public StreamProperties visitValues(ValuesNode node, List<StreamProperties> context)
         {
             // values always produces a single stream
+            return StreamProperties.singleStream();
+        }
+
+        @Override
+        public StreamProperties visitGremlin(GremlinNode node, List<StreamProperties> context)
+        {
             return StreamProperties.singleStream();
         }
 
