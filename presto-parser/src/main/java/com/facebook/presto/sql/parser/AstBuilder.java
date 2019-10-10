@@ -1094,7 +1094,15 @@ class AstBuilder
     @Override
     public Node visitGremlin(SqlBaseParser.GremlinContext context)
     {
-        String sentence = ((StringLiteral) visit(context.string())).getValue();
+        String sentence = ((StringLiteral) visit(context.sentence)).getValue();
+        if (context.name != null) {
+            String name = ((StringLiteral) visit(context.name)).getValue();
+            if (context.connector != null) {
+                String connector = ((StringLiteral) visit(context.connector)).getValue();
+                return new Gremlin(getLocation(context), sentence, connector, name);
+            }
+            return new Gremlin(getLocation(context), sentence, name);
+        }
         return new Gremlin(getLocation(context), sentence);
     }
 

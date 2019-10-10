@@ -254,7 +254,7 @@ relationPrimary
     | UNNEST '(' expression (',' expression)* ')' (WITH ORDINALITY)?  #unnest
     | LATERAL '(' query ')'                                           #lateral
     | '(' relation ')'                                                #parenthesizedRelation
-    | GREMLIN ('['sentence=string']')                                 #gremlin
+    | GREMLIN ('['sentence=string((',' connector=string)?',' name=string)?']')    #gremlin
     ;
 
 expression
