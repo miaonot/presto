@@ -28,6 +28,7 @@ import com.facebook.presto.spi.TableNotFoundException;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Inject;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class HugeGraphMetadata
 {
     private HugeGraphClient hugeGraphClient;
 
+    @Inject
     public HugeGraphMetadata(HugeGraphClient hugeGraphClient)
     {
         this.hugeGraphClient = requireNonNull(hugeGraphClient, "client is null");

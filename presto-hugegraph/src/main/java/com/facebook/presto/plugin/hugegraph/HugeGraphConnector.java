@@ -14,19 +14,14 @@
 package com.facebook.presto.plugin.hugegraph;
 
 import com.facebook.presto.spi.connector.Connector;
-import com.facebook.presto.spi.connector.ConnectorAccessControl;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
+import com.facebook.presto.spi.connector.ConnectorRecordSetProvider;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
-import com.facebook.presto.spi.procedure.Procedure;
 import com.facebook.presto.spi.transaction.IsolationLevel;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.airlift.bootstrap.LifeCycleManager;
 import io.airlift.log.Logger;
-
-import java.util.Optional;
-import java.util.Set;
 
 import static com.facebook.presto.spi.transaction.IsolationLevel.READ_COMMITTED;
 import static com.facebook.presto.spi.transaction.IsolationLevel.checkConnectorSupports;
@@ -40,30 +35,26 @@ public class HugeGraphConnector
     private final LifeCycleManager lifeCycleManager;
     private final HugeGraphMetadata hugeGraphMetadata;
     private final HugeGraphSplitManager hugeGraphSplitManager;
-    private final Optional<ConnectorAccessControl> accessControl;
-    private final Set<Procedure> procedures;
+    private final HugeGraphRecordSetProvider hugeGraphRecordSetProvider;
 
     @Inject
     public HugeGraphConnector(
             LifeCycleManager lifeCycleManager,
             HugeGraphMetadata hugeGraphMetadata,
             HugeGraphSplitManager hugeGraphSplitManager,
-            Optional<ConnectorAccessControl> accessControl,
-            Set<Procedure> procedures)
+            HugeGraphRecordSetProvider hugeGraphRecordSetProvider)
     {
         this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.hugeGraphMetadata = requireNonNull(hugeGraphMetadata, "hugeGraphMetadata is null");
         this.hugeGraphSplitManager = requireNonNull(hugeGraphSplitManager, "hugeGraphSplitManager is null");
-        this.accessControl = requireNonNull(accessControl, "accessControl is null");
-        this.procedures = ImmutableSet.copyOf(requireNonNull(procedures, "procedures is null"));
+        this.hugeGraphRecordSetProvider = requireNonNull(hugeGraphRecordSetProvider, "hugeGraphRecordSetProvider is null");
     }
 
     @Override
     public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly)
     {
         checkConnectorSupports(READ_COMMITTED, isolationLevel);
-        HugeGraphTransactionHandle transaction = new HugeGraphTransactionHandle();
-        return transaction;
+        return new HugeGraphTransactionHandle();
     }
 
     @Override
@@ -76,6 +67,12 @@ public class HugeGraphConnector
     public ConnectorSplitManager getSplitManager()
     {
         return hugeGraphSplitManager;
+    }
+
+    @Override
+    public ConnectorRecordSetProvider getRecordSetProvider()
+    {
+        return hugeGraphRecordSetProvider;
     }
 
     @Override

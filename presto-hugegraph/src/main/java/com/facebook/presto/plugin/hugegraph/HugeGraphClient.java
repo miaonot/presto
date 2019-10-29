@@ -20,6 +20,7 @@ import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.type.Type;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import io.airlift.log.Logger;
 import org.apache.tinkerpop.gremlin.driver.Client;
 import org.apache.tinkerpop.gremlin.driver.Result;
@@ -48,10 +49,11 @@ public class HugeGraphClient
     protected final String connectorId;
     protected final GremlinClientFactory gremlinClientFactory;
 
-    public HugeGraphClient(String connectorId, HugeGraphConfiguration config,
-                           GremlinClientFactory gremlinClientFactory)
+    @Inject
+    public HugeGraphClient(HugeGraphConnectorId hugeGraphConnectorId, HugeGraphConfig config,
+            GremlinClientFactory gremlinClientFactory)
     {
-        this.connectorId = requireNonNull(connectorId, "connectorId is null");
+        this.connectorId = requireNonNull(hugeGraphConnectorId.toString(), "connectorId is null");
         requireNonNull(config, "config is null");
         this.gremlinClientFactory = requireNonNull(gremlinClientFactory, "connectionFactory is null");
     }

@@ -22,21 +22,14 @@ import static org.testng.Assert.assertNotNull;
 public class TestHugeGraphClient
 {
     public static final String connectorId = "test";
-    private HugeGraphConfiguration configuration;
+    private HugeGraphConfig config;
     private GremlinClientFactory gremlinClientFactory;
 
     @BeforeMethod
     public void setup()
     {
-        configuration = new HugeGraphConfiguration();
-        configuration.addProperty("hosts", "10.77.110.131");
-        configuration.addProperty("port", 8182);
-        configuration.addProperty("serializer.className",
-                "org.apache.tinkerpop.gremlin.driver.ser.GryoLiteMessageSerializerV1d0");
-        configuration.addProperty("serializer.config.serializeResultToString",
-                false);
-
-        gremlinClientFactory = new GremlinClientFactory(configuration);
+        config.setHugeGraphConfigPath("../presto-main/etc/catalog/hugegraph.yaml");
+        gremlinClientFactory = new GremlinClientFactory(config);
     }
 
     @AfterMethod(alwaysRun = true)
@@ -49,7 +42,7 @@ public class TestHugeGraphClient
     @Test
     public void testGetSchemaNames()
     {
-        HugeGraphClient hugeGraphClient = new HugeGraphClient(connectorId, configuration, gremlinClientFactory);
+        HugeGraphClient hugeGraphClient = new HugeGraphClient(connectorId, config, gremlinClientFactory);
         assertNotNull(hugeGraphClient.getSchemaNames());
     }
 }

@@ -39,6 +39,7 @@ public class HugeGraphModule
         binder.bind(HugeGraphSplitManager.class).in(Scopes.SINGLETON);
         binder.bind(HugeGraphRecordSetProvider.class).in(Scopes.SINGLETON);
         binder.bind(HugeGraphHandleResolver.class).in(Scopes.SINGLETON);
-        configBinder(binder).bindConfig(HugeGraphConfiguration.class);
+        binder.bind(GremlinClientFactory.class).in(Scopes.SINGLETON);
+        configBinder(binder).bindConfig(HugeGraphConfig.class);
     }
 }

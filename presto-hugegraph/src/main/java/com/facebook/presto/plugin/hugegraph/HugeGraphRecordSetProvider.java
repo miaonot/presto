@@ -20,6 +20,7 @@ import com.facebook.presto.spi.RecordSet;
 import com.facebook.presto.spi.connector.ConnectorRecordSetProvider;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class HugeGraphRecordSetProvider
 {
     private final HugeGraphClient hugeGraphClient;
 
+    @Inject
     public HugeGraphRecordSetProvider(HugeGraphClient hugeGraphClient)
     {
         this.hugeGraphClient = requireNonNull(hugeGraphClient);

@@ -13,10 +13,12 @@
  */
 package com.facebook.presto.plugin.hugegraph;
 
-import org.apache.commons.configuration.Configuration;
+import com.facebook.presto.spi.PrestoException;
+import com.google.inject.Inject;
 import org.apache.tinkerpop.gremlin.driver.Client;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
 
+import static com.facebook.presto.plugin.hugegraph.GremlinErrorCode.GREMLIN_ERROR;
 import static java.util.Objects.requireNonNull;
 
 public class GremlinClientFactory
@@ -24,10 +26,18 @@ public class GremlinClientFactory
 {
     private final Cluster cluster;
 
-    public GremlinClientFactory(Configuration configuration)
+    @Inject
+    public GremlinClientFactory(HugeGraphConfig hugeGraphConfig)
     {
-        requireNonNull(configuration, "configuration is null");
-        cluster = Cluster.open(configuration);
+        requireNonNull(hugeGraphConfig, "configuration is null");
+        Cluster temp;
+        try {
+            temp = Cluster.open(hugeGraphConfig.getHugeGraphConfigurationPath());
+        }
+        catch (Exception e) {
+            throw new PrestoException(GREMLIN_ERROR, e);
+        }
+        cluster = temp;
     }
 
     public Client openClient()
@@ -36,6 +46,7 @@ public class GremlinClientFactory
     }
 
     @Override
-    public void close() throws Exception
+    public void close()
+            throws Exception
     {}
 }
