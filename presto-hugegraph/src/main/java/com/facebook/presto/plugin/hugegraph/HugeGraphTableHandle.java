@@ -31,10 +31,10 @@ public class HugeGraphTableHandle
     private final String tableName;
 
     public HugeGraphTableHandle(String connectorId,
-                                SchemaTableName schemaTableName,
-                                @Nullable String catalogName,
-                                @Nullable String schemaName,
-                                String tableName)
+            SchemaTableName schemaTableName,
+            @Nullable String catalogName,
+            @Nullable String schemaName,
+            String tableName)
     {
         this.connectorId = connectorId;
         this.schemaTableName = schemaTableName;

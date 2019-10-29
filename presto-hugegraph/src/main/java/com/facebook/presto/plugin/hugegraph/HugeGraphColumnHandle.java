@@ -33,10 +33,10 @@ public class HugeGraphColumnHandle
     private final boolean nullable;
 
     public HugeGraphColumnHandle(String connectorId,
-                                 String columnName,
-                                 HugeGraphTypeHandle hugeGraphTypeHandle,
-                                 Type columnType,
-                                 boolean nullable)
+            String columnName,
+            HugeGraphTypeHandle hugeGraphTypeHandle,
+            Type columnType,
+            boolean nullable)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
         this.columnName = requireNonNull(columnName, "cloumnName is null");

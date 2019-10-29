@@ -35,8 +35,8 @@ public final class GremlinNode
 
     @JsonCreator
     public GremlinNode(@JsonProperty("id") PlanNodeId id,
-                       @JsonProperty("gremlin") Optional<String> gremlin,
-                       @JsonProperty("outputVariables") List<VariableReferenceExpression> outputVariables)
+            @JsonProperty("gremlin") Optional<String> gremlin,
+            @JsonProperty("outputVariables") List<VariableReferenceExpression> outputVariables)
     {
         super(id);
         this.gremlin = requireNonNull(gremlin, "gremlin is null");
@@ -50,17 +50,20 @@ public final class GremlinNode
     }
 
     @Override
-    public List<PlanNode> getSources() {
+    public List<PlanNode> getSources()
+    {
         return emptyList();
     }
 
     @Override
-    public List<VariableReferenceExpression> getOutputVariables() {
+    public List<VariableReferenceExpression> getOutputVariables()
+    {
         return outputVariables;
     }
 
     @Override
-    public PlanNode replaceChildren(List<PlanNode> newChildren) {
+    public PlanNode replaceChildren(List<PlanNode> newChildren)
+    {
         checkArgument(newChildren.isEmpty(), "newChildren is not empty");
         return this;
     }

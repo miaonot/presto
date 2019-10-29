@@ -46,7 +46,6 @@ public class GremlinNode
         this.outputVariables = ImmutableList.copyOf(requireNonNull(outputVariables, "outputVariables is null"));
     }
 
-
     @JsonProperty
     public PlanNode getSource()
     {
@@ -54,7 +53,8 @@ public class GremlinNode
     }
 
     @Override
-    public List<PlanNode> getSources() {
+    public List<PlanNode> getSources()
+    {
         return ImmutableList.of(source);
     }
 
@@ -74,6 +74,6 @@ public class GremlinNode
     @Override
     public PlanNode replaceChildren(List<PlanNode> newChildren)
     {
-        return new GremlinNode(getId(),Iterables.getOnlyElement(newChildren),outputVariables);
+        return new GremlinNode(getId(), Iterables.getOnlyElement(newChildren), outputVariables);
     }
 }
