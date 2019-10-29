@@ -41,6 +41,8 @@ Keyword                        SQL:2016      SQL-92
 ``FOR``                        reserved      reserved
 ``FROM``                       reserved      reserved
 ``FULL``                       reserved      reserved
+``GREMLIN``
+``GREMLINS``
 ``GROUP``                      reserved      reserved
 ``GROUPING``                   reserved
 ``HAVING``                     reserved      reserved
