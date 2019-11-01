@@ -444,6 +444,11 @@ public class Analysis
         return tables.get(NodeRef.of(table));
     }
 
+    public TableHandle getTableHandle(Gremlin node)
+    {
+        return gremlins.get(NodeRef.of(node));
+    }
+
     public Collection<TableHandle> getTables()
     {
         return unmodifiableCollection(tables.values());

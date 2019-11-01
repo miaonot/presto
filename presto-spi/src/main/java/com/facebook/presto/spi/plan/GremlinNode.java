@@ -13,6 +13,8 @@
  */
 package com.facebook.presto.spi.plan;
 
+import com.facebook.presto.spi.ColumnHandle;
+import com.facebook.presto.spi.TableHandle;
 import com.facebook.presto.spi.relation.VariableReferenceExpression;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -31,22 +34,40 @@ public final class GremlinNode
         extends PlanNode
 {
     private final Optional<String> gremlin;
+    private final TableHandle table;
+    private final Map<VariableReferenceExpression, ColumnHandle> assignments;
     private final List<VariableReferenceExpression> outputVariables;
 
     @JsonCreator
     public GremlinNode(@JsonProperty("id") PlanNodeId id,
+            @JsonProperty("table") TableHandle table,
             @JsonProperty("gremlin") Optional<String> gremlin,
-            @JsonProperty("outputVariables") List<VariableReferenceExpression> outputVariables)
+            @JsonProperty("outputVariables") List<VariableReferenceExpression> outputVariables,
+            @JsonProperty("assignments") Map<VariableReferenceExpression, ColumnHandle> assignments)
     {
         super(id);
         this.gremlin = requireNonNull(gremlin, "gremlin is null");
+        this.table = table;
         this.outputVariables = unmodifiableList(requireNonNull(outputVariables, "outputVariables is null"));
+        this.assignments = assignments;
     }
 
     @JsonProperty("gremlin")
     public Optional<String> getGremlin()
     {
         return gremlin;
+    }
+
+    @JsonProperty("table")
+    public TableHandle getTable()
+    {
+        return table;
+    }
+
+    @JsonProperty("assignments")
+    public Map<VariableReferenceExpression, ColumnHandle> getAssignments()
+    {
+        return assignments;
     }
 
     @Override

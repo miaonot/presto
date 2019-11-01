@@ -715,16 +715,19 @@ class RelationPlanner
     protected RelationPlan visitGremlin(Gremlin node, Void context)
     {
         Scope scope = analysis.getScope(node);
+
+        TableHandle handle = analysis.getTableHandle(node);
+
         ImmutableList.Builder<VariableReferenceExpression> outputVariablesBuilder = ImmutableList.builder();
-        for (Field field : scope.getRelationType().getVisibleFields()) {
-            outputVariablesBuilder.add(variableAllocator.newVariable(field));
+        ImmutableMap.Builder<VariableReferenceExpression, ColumnHandle> columns = ImmutableMap.builder();
+        for (Field field : scope.getRelationType().getAllFields()) {
+            VariableReferenceExpression variable = variableAllocator.newVariable(field);
+            outputVariablesBuilder.add(variable);
+            columns.put(variable, analysis.getColumn(field));
         }
         List<VariableReferenceExpression> gremlinVariables = outputVariablesBuilder.build();
 
-        GremlinNode gremlinNode = new GremlinNode(idAllocator.getNextId(), Optional.of(node.getSentence()), gremlinVariables);
-
-//        //TODO: 验证这个地方是否有问题，我怀疑ValuesNode是用来从表里获取数值的，是否需要添加一个新的Node类，或者直接将GremlinNode作为PlanNode。 hong
-//        GremlinNode gremlinNode = new GremlinNode(idAllocator.getNextId(), node.getSentence(), valuesNode, gremlinVariables);
+        GremlinNode gremlinNode = new GremlinNode(idAllocator.getNextId(), handle, Optional.of(node.getSentence()), gremlinVariables, columns.build());
         return new RelationPlan(gremlinNode, scope, gremlinVariables);
     }
 
