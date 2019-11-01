@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.sql.tree;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -56,7 +57,27 @@ public class Gremlin
         requireNonNull(sentence, "sentence is null");
         this.sentence = sentence;
         this.connector = connector;
-        this.name = QualifiedName.of(name);
+        String catalogName = null;
+        String schemaName = null;
+        String objectName = null;
+
+        ImmutableList<String> ids = ImmutableList.copyOf(Splitter.on('.').split(name));
+        if (ids.size() == 3) {
+            catalogName = ids.get(0);
+            schemaName = ids.get(1);
+            objectName = ids.get(2);
+        }
+        else if (ids.size() == 2) {
+            catalogName = connector;
+            schemaName = ids.get(0);
+            objectName = ids.get(1);
+        }
+        else if (ids.size() == 1) {
+            catalogName = connector;
+            schemaName = connector;
+            objectName = ids.get(0);
+        }
+        this.name = QualifiedName.of(catalogName, schemaName, objectName);
     }
 
     public String getSentence()
@@ -114,5 +135,4 @@ public class Gremlin
                 .addValue(name)
                 .toString();
     }
-
 }

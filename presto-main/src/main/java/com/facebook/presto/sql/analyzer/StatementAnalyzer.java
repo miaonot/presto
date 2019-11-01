@@ -35,7 +35,6 @@ import com.facebook.presto.spi.function.OperatorType;
 import com.facebook.presto.spi.security.AccessDeniedException;
 import com.facebook.presto.spi.security.Identity;
 import com.facebook.presto.spi.type.ArrayType;
-import com.facebook.presto.spi.type.IntegerType;
 import com.facebook.presto.spi.type.MapType;
 import com.facebook.presto.spi.type.RowType;
 import com.facebook.presto.spi.type.Type;
@@ -953,18 +952,49 @@ class StatementAnalyzer
         @Override
         protected Scope visitGremlin(Gremlin node, Optional<Scope> scope)
         {
-            //TODO: This part is now hardcode here, need to be fixed with table metadata.
+            //todo: 尝试.make gremlin like "table", no column massage, hardcode first.
+
+            analysis.setUpdateType("GREMLIN");
+            QualifiedObjectName table = createQualifiedObjectName(session, node, node.getName());
+            analysis.addEmptyColumnReferencesForTable(accessControl, session.getIdentity(), table);
+
+            Optional<TableHandle> tableHandle = metadata.getTableHandle(session, table);
+            metadata.getCatalogHandle(session, table.getCatalogName());
+            TableMetadata tableMetadata = metadata.getTableMetadata(session, tableHandle.get());
+            Map<String, ColumnHandle> columnHandles = metadata.getColumnHandles(session, tableHandle.get());
+
             ImmutableList.Builder<Field> fields = ImmutableList.builder();
-            Field field = Field.newQualified(
-                    QualifiedName.of("gremlin"),
-                    Optional.of("id"),
-                    IntegerType.INTEGER,
-                    false,
-                    Optional.empty(),
-                    Optional.empty(),
-                    false
-            );
-            fields.add(field);
+            for (ColumnMetadata column : tableMetadata.getColumns()) {
+                Field field = Field.newQualified(
+                        node.getName(),
+                        Optional.of(column.getName()),
+                        column.getType(),
+                        column.isHidden(),
+                        Optional.of(table),
+                        Optional.of(column.getName()),
+                        false);
+                fields.add(field);
+                ColumnHandle columnHandle = columnHandles.get(column.getName());
+                checkArgument(columnHandle != null, "Unknown field %s", field);
+                analysis.setColumn(field, columnHandle);
+            }
+
+            //TODO: This part is now hardcode here, need to be fixed with table metadata.
+//            ColumnHandle columnHandle = columnHandles.get(column.getName());
+//            checkArgument(columnHandle != null, "Unknown field %s", field);
+//            analysis.setColumn(field, columnHandle);
+//            Field field = Field.newQualified(
+//                    QualifiedName.of("gremlin"),
+//                    Optional.of("id"),
+//                    IntegerType.INTEGER,
+//                    false,
+//                    Optional.empty(),
+//                    Optional.empty(),
+//                    false);
+//            fields.add(field);
+
+            analysis.registerGremlin(node, tableHandle.get());
+
             return createAndAssignScope(node, scope, fields.build());
         }
 

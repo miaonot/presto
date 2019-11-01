@@ -23,6 +23,7 @@ import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.tree.ExistsPredicate;
 import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.FunctionCall;
+import com.facebook.presto.sql.tree.Gremlin;
 import com.facebook.presto.sql.tree.GroupingOperation;
 import com.facebook.presto.sql.tree.Identifier;
 import com.facebook.presto.sql.tree.InPredicate;
@@ -107,6 +108,7 @@ public class Analysis
     private final ListMultimap<NodeRef<Node>, QuantifiedComparisonExpression> quantifiedComparisonSubqueries = ArrayListMultimap.create();
 
     private final Map<NodeRef<Table>, TableHandle> tables = new LinkedHashMap<>();
+    private final Map<NodeRef<Gremlin>, TableHandle> gremlins = new LinkedHashMap<>();
 
     private final Map<NodeRef<Expression>, Type> types = new LinkedHashMap<>();
     private final Map<NodeRef<Expression>, Type> coercions = new LinkedHashMap<>();
@@ -452,6 +454,11 @@ public class Analysis
         tables.put(NodeRef.of(table), handle);
     }
 
+    public void registerGremlin(Gremlin gremlin, TableHandle handle)
+    {
+        gremlins.put(NodeRef.of(gremlin), handle);
+    }
+
     public FunctionHandle getFunctionHandle(FunctionCall function)
     {
         return functionHandles.get(NodeRef.of(function));
@@ -590,6 +597,14 @@ public class Analysis
 
         namedQueries.put(NodeRef.of(tableReference), query);
     }
+
+//    public void registerNamedQuery(Node nodeReference, Query query)
+//    {
+//        requireNonNull(nodeReference, "tableReference is null");
+//        requireNonNull(query, "query is null");
+//
+//        namedQueries.put(NodeRef.of(nodeReference), query);
+//    }
 
     public void registerTableForView(Table tableReference)
     {
