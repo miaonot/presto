@@ -28,7 +28,7 @@ public class TestHugeGraphClient
     @BeforeMethod
     public void setup()
     {
-        config.setHugeGraphConfigPath("../presto-main/etc/catalog/hugegraph.yaml");
+        config.setHugeGraphConfigurationPath("../presto-main/etc/catalog/hugegraph.yaml");
         gremlinClientFactory = new GremlinClientFactory(config);
     }
 
@@ -42,7 +42,7 @@ public class TestHugeGraphClient
     @Test
     public void testGetSchemaNames()
     {
-        HugeGraphClient hugeGraphClient = new HugeGraphClient(connectorId, config, gremlinClientFactory);
+        HugeGraphClient hugeGraphClient = new HugeGraphClient(new HugeGraphConnectorId(connectorId), config, gremlinClientFactory);
         assertNotNull(hugeGraphClient.getSchemaNames());
     }
 }
