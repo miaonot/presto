@@ -85,10 +85,9 @@ public class HugeGraphMetadata
         HugeGraphTableHandle handle = (HugeGraphTableHandle) table;
 
         ImmutableList.Builder<ColumnMetadata> columnMetadata = ImmutableList.builder();
-        hugeGraphClient.getColumns(session, handle);
-//        for (HugeGraphColumnHandle column : jdbcClient.getColumns(session, handle)) {
-//            columnMetadata.add(column.getColumnMetadata());
-//        }
+        for (HugeGraphColumnHandle column : hugeGraphClient.getColumns(session, handle)) {
+            columnMetadata.add(column.getColumnMetadata());
+        }
         return new ConnectorTableMetadata(handle.getSchemaTableName(), columnMetadata.build());
     }
 

@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.facebook.presto.plugin.hugegraph.GremlinErrorCode.GREMLIN_ERROR;
-import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static java.util.Objects.requireNonNull;
 
@@ -118,76 +117,19 @@ public class HugeGraphClient
     @Nullable
     public HugeGraphTableHandle getTableHandle(SchemaTableName schemaTableName)
     {
-        try {
-            boolean isVertex = false;
-            boolean isEdge = false;
-            Client client = gremlinClientFactory.openClient();
-            String schema = schemaTableName.getSchemaName();
-            String tableName = schemaTableName.getTableName();
-            CompletableFuture<ResultSet> future = client.submitAsync("g=" + schema
-                    + ".traversal(); g.V().hasLabel('" + tableName + "')");
-            isVertex = !future.get().all().get().isEmpty();
-
-            future = client.submitAsync("g=" + schema
-                    + ".traversal(); g.E().hasLabel('" + tableName + "')");
-            isEdge = !future.get().all().get().isEmpty();
-
-            if (isVertex && isEdge) {
-                throw new PrestoException(NOT_SUPPORTED, "Multiple tables matched: " + schemaTableName);
-            }
-            if (!isEdge && !isVertex) {
-                return null;
-            }
-
-            return new HugeGraphTableHandle(connectorId,
-                    schemaTableName,
-                    schema,
-                    schema,
-                    tableName);
-        }
-        catch (Exception e) {
-            throw new PrestoException(GREMLIN_ERROR, e);
-        }
+        //Hard core
+        String schema = schemaTableName.getSchemaName();
+        String tableName = schemaTableName.getTableName();
+        return new HugeGraphTableHandle(connectorId, schemaTableName, "hugegraph", schema, tableName);
     }
 
     public List<HugeGraphColumnHandle> getColumns(ConnectorSession session, HugeGraphTableHandle tableHandle)
     {
-        boolean isVertex = false;
-        boolean isEdge = false;
-
-        try {
-            List<HugeGraphColumnHandle> columns = new ArrayList<>();
-
-            Client client = gremlinClientFactory.openClient();
-            String schema = tableHandle.getSchemaName();
-            String tableName = tableHandle.getTableName();
-            CompletableFuture<ResultSet> future = client.submitAsync("g=" + schema +
-                    ".traversal(); g.V().hasLabel('" + tableName + "').properties().key()");
-            isVertex = !future.get().all().get().isEmpty();
-            if (isVertex) {
-                List<Result> results = future.get().all().join();
-                for (int i = 0; i < future.get().all().get().size(); i++) {
-                    HugeGraphTypeHandle hugeGraphTypeHandle = new HugeGraphTypeHandle(0);
-                    columns.add(new HugeGraphColumnHandle(connectorId, results.get(i).toString(), hugeGraphTypeHandle, toPrestoType(hugeGraphTypeHandle), false));
-                }
-            }
-
-            future = client.submitAsync("g=" + schema
-                    + ".traversal(); g.E().hasLabel('" + tableName + "').properties().key()");
-            isEdge = !future.get().all().get().isEmpty();
-
-            if (isVertex && isEdge) {
-                throw new PrestoException(NOT_SUPPORTED, "Multiple tables matched: " + tableName);
-            }
-            if (!isEdge && !isVertex) {
-                return null;
-            }
-
-            return columns;
-        }
-        catch (Exception e) {
-            throw new PrestoException(GREMLIN_ERROR, e);
-        }
+        //Hard core
+        List<HugeGraphColumnHandle> columns = new ArrayList<>();
+        HugeGraphTypeHandle hugeGraphTypeHandle = new HugeGraphTypeHandle(0);
+        columns.add(new HugeGraphColumnHandle(connectorId, "id", hugeGraphTypeHandle, toPrestoType(hugeGraphTypeHandle), false));
+        return columns;
     }
 
     private Type toPrestoType(HugeGraphTypeHandle hugeGraphTypeHandle)
