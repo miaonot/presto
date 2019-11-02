@@ -14,6 +14,7 @@
 
 package com.facebook.presto.sql.planner;
 
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeId;
 import com.facebook.presto.spi.plan.TableScanNode;
@@ -84,6 +85,13 @@ public class SchedulingOrderVisitor
 
         @Override
         public Void visitTableScan(TableScanNode node, Consumer<PlanNodeId> schedulingOrder)
+        {
+            schedulingOrder.accept(node.getId());
+            return null;
+        }
+
+        @Override
+        public Void visitGremlin(GremlinNode node, Consumer<PlanNodeId> schedulingOrder)
         {
             schedulingOrder.accept(node.getId());
             return null;

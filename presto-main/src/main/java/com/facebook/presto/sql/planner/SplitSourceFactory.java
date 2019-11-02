@@ -17,6 +17,7 @@ import com.facebook.presto.Session;
 import com.facebook.presto.operator.StageExecutionDescriptor;
 import com.facebook.presto.spi.connector.ConnectorSplitManager.SplitSchedulingStrategy;
 import com.facebook.presto.spi.plan.FilterNode;
+import com.facebook.presto.spi.plan.GremlinNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeId;
 import com.facebook.presto.spi.plan.TableScanNode;
@@ -136,6 +137,21 @@ public class SplitSourceFactory
         public Map<PlanNodeId, SplitSource> visitTableScan(TableScanNode node, Void context)
         {
             // get dataSource for table
+            Supplier<SplitSource> splitSourceSupplier = () -> splitSourceProvider.getSplits(
+                    session,
+                    node.getTable(),
+                    getSplitSchedulingStrategy(stageExecutionDescriptor, node.getId()));
+
+            SplitSource splitSource = new LazySplitSource(splitSourceSupplier);
+
+            splitSources.add(splitSource);
+
+            return ImmutableMap.of(node.getId(), splitSource);
+        }
+
+        @Override
+        public Map<PlanNodeId, SplitSource> visitGremlin(GremlinNode node, Void context)
+        {
             Supplier<SplitSource> splitSourceSupplier = () -> splitSourceProvider.getSplits(
                     session,
                     node.getTable(),
