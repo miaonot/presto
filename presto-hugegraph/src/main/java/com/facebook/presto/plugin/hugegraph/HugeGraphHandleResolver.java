@@ -18,6 +18,7 @@ import com.facebook.presto.spi.ConnectorHandleResolver;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.ConnectorTableHandle;
 import com.facebook.presto.spi.ConnectorTableLayoutHandle;
+import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 
 public class HugeGraphHandleResolver
         implements ConnectorHandleResolver
@@ -44,5 +45,11 @@ public class HugeGraphHandleResolver
     public Class<? extends ConnectorSplit> getSplitClass()
     {
         return HugeGraphSplit.class;
+    }
+
+    @Override
+    public Class<? extends ConnectorTransactionHandle> getTransactionHandleClass()
+    {
+        return HugeGraphTransactionHandle.class;
     }
 }
