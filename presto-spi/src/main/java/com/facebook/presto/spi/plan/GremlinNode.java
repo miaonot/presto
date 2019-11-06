@@ -77,6 +77,7 @@ public final class GremlinNode
     }
 
     @Override
+    @JsonProperty
     public List<VariableReferenceExpression> getOutputVariables()
     {
         return outputVariables;

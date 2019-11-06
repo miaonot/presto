@@ -15,13 +15,15 @@ package com.facebook.presto.plugin.hugegraph;
 
 import com.facebook.presto.spi.ConnectorTableHandle;
 import com.facebook.presto.spi.SchemaTableName;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Joiner;
 
 import javax.annotation.Nullable;
 
 import java.util.Objects;
 
-public class HugeGraphTableHandle
+public final class HugeGraphTableHandle
         implements ConnectorTableHandle
 {
     private final String connectorId;
@@ -30,11 +32,13 @@ public class HugeGraphTableHandle
     private final String schemaName;
     private final String tableName;
 
-    public HugeGraphTableHandle(String connectorId,
-            SchemaTableName schemaTableName,
-            @Nullable String catalogName,
-            @Nullable String schemaName,
-            String tableName)
+    @JsonCreator
+    public HugeGraphTableHandle(
+            @JsonProperty("connectorId") String connectorId,
+            @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
+            @JsonProperty("catalogName") @Nullable String catalogName,
+            @JsonProperty("schemaName") @Nullable String schemaName,
+            @JsonProperty("tableName") String tableName)
     {
         this.connectorId = connectorId;
         this.schemaTableName = schemaTableName;
@@ -43,28 +47,33 @@ public class HugeGraphTableHandle
         this.tableName = tableName;
     }
 
+    @JsonProperty
     public String getConnectorId()
     {
         return connectorId;
     }
 
+    @JsonProperty
     public SchemaTableName getSchemaTableName()
     {
         return schemaTableName;
     }
 
+    @JsonProperty
     @Nullable
     public String getCatalogName()
     {
         return catalogName;
     }
 
+    @JsonProperty
     @Nullable
     public String getSchemaName()
     {
         return schemaName;
     }
 
+    @JsonProperty
     public String getTableName()
     {
         return tableName;

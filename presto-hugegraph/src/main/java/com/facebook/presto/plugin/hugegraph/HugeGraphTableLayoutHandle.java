@@ -16,6 +16,8 @@ package com.facebook.presto.plugin.hugegraph;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorTableLayoutHandle;
 import com.facebook.presto.spi.predicate.TupleDomain;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
@@ -27,17 +29,22 @@ public class HugeGraphTableLayoutHandle
     private final HugeGraphTableHandle table;
     private final TupleDomain<ColumnHandle> tupleDomain;
 
-    public HugeGraphTableLayoutHandle(HugeGraphTableHandle table, TupleDomain<ColumnHandle> domain)
+    @JsonCreator
+    public HugeGraphTableLayoutHandle(
+            @JsonProperty("table") HugeGraphTableHandle table,
+            @JsonProperty("tupleDomain") TupleDomain<ColumnHandle> domain)
     {
         this.table = requireNonNull(table, "table is null");
         this.tupleDomain = requireNonNull(domain, "tupleDomain is null");
     }
 
+    @JsonProperty
     public HugeGraphTableHandle getTable()
     {
         return table;
     }
 
+    @JsonProperty
     public TupleDomain<ColumnHandle> getTupleDomain()
     {
         return tupleDomain;

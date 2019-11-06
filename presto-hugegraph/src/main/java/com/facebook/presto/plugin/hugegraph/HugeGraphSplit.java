@@ -17,6 +17,8 @@ import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.HostAddress;
 import com.facebook.presto.spi.predicate.TupleDomain;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nullable;
@@ -37,14 +39,15 @@ public class HugeGraphSplit
     private final Optional<String> additionalPredicate;
     private final String gremlinQuery;
 
+    @JsonCreator
     public HugeGraphSplit(
-            String connectorId,
-            @Nullable String catalogName,
-            @Nullable String schemaName,
-            @Nullable String tableName,
-            @Nullable TupleDomain<ColumnHandle> tupleDomain,
-            @Nullable Optional<String> additionalPredicate,
-            @Nullable String gremlinQuery)
+            @JsonProperty("connectorId") String connectorId,
+            @JsonProperty("catalogName") @Nullable String catalogName,
+            @JsonProperty("schemaName") @Nullable String schemaName,
+            @JsonProperty("tableName") String tableName,
+            @JsonProperty("tupleDomain") TupleDomain<ColumnHandle> tupleDomain,
+            @JsonProperty("additionalPredicate") Optional<String> additionalPredicate,
+            @JsonProperty("gremlinQuery") @Nullable String gremlinQuery)
     {
         this.connectorId = requireNonNull(connectorId, "connector id is null");
         this.catalogName = catalogName;
@@ -55,41 +58,45 @@ public class HugeGraphSplit
         this.gremlinQuery = gremlinQuery;
     }
 
+    @JsonProperty
     public String getConnectorId()
     {
         return connectorId;
     }
 
+    @JsonProperty
     @Nullable
     public String getCatalogName()
     {
         return catalogName;
     }
 
+    @JsonProperty
     @Nullable
     public String getSchemaName()
     {
         return schemaName;
     }
 
-    @Nullable
+    @JsonProperty
     public String getTableName()
     {
         return tableName;
     }
 
-    @Nullable
+    @JsonProperty
     public TupleDomain<ColumnHandle> getTupleDomain()
     {
         return tupleDomain;
     }
 
-    @Nullable
+    @JsonProperty
     public Optional<String> getAdditionalPredicate()
     {
         return additionalPredicate;
     }
 
+    @JsonProperty
     @Nullable
     public String getGremlinQuery()
     {

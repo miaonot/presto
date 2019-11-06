@@ -16,6 +16,8 @@ package com.facebook.presto.plugin.hugegraph;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ColumnMetadata;
 import com.facebook.presto.spi.type.Type;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
@@ -23,7 +25,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 
-public class HugeGraphColumnHandle
+public final class HugeGraphColumnHandle
         implements ColumnHandle
 {
     private final String connectorId;
@@ -32,11 +34,13 @@ public class HugeGraphColumnHandle
     private final Type columnType;
     private final boolean nullable;
 
-    public HugeGraphColumnHandle(String connectorId,
-            String columnName,
-            HugeGraphTypeHandle hugeGraphTypeHandle,
-            Type columnType,
-            boolean nullable)
+    @JsonCreator
+    public HugeGraphColumnHandle(
+            @JsonProperty("connectorId") String connectorId,
+            @JsonProperty("columnName") String columnName,
+            @JsonProperty("hugeGraphTypeHandle") HugeGraphTypeHandle hugeGraphTypeHandle,
+            @JsonProperty("columnType") Type columnType,
+            @JsonProperty("nullable") boolean nullable)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
         this.columnName = requireNonNull(columnName, "cloumnName is null");
@@ -45,26 +49,31 @@ public class HugeGraphColumnHandle
         this.nullable = nullable;
     }
 
+    @JsonProperty
     public String getConnectorId()
     {
         return connectorId;
     }
 
+    @JsonProperty
     public String getColumnName()
     {
         return columnName;
     }
 
-    public HugeGraphTypeHandle getJdbcTypeHandle()
+    @JsonProperty
+    public HugeGraphTypeHandle getHugeGraphTypeHandle()
     {
         return hugeGraphTypeHandle;
     }
 
+    @JsonProperty
     public Type getColumnType()
     {
         return columnType;
     }
 
+    @JsonProperty
     public boolean isNullable()
     {
         return nullable;

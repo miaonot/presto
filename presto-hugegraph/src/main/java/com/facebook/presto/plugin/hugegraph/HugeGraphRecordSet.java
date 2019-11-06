@@ -34,7 +34,7 @@ public class HugeGraphRecordSet
 
     public HugeGraphRecordSet(HugeGraphClient hugeGraphClient, ConnectorSession session, HugeGraphSplit hugeGraphSplit, ImmutableList<HugeGraphColumnHandle> build)
     {
-        this.hugeGraphClient = requireNonNull(hugeGraphClient, "jdbcClient is null");
+        this.hugeGraphClient = requireNonNull(hugeGraphClient, "hugeGraphClient is null");
         this.split = requireNonNull(hugeGraphSplit, "split is null");
 
         requireNonNull(split, "split is null");

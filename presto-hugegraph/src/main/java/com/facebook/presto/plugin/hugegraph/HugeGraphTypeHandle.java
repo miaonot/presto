@@ -13,20 +13,22 @@
  */
 package com.facebook.presto.plugin.hugegraph;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
-public class HugeGraphTypeHandle
+public final class HugeGraphTypeHandle
 {
     private final int hugeGraphType;
 //    private final int columnSize;
 //    private final int decimalDigits;
 
+    @JsonCreator
     public HugeGraphTypeHandle(
-            @JsonProperty("HugeGraphType") int hugeGraphType)
+            @JsonProperty("hugeGraphType") int hugeGraphType)
 //            @JsonProperty("columnSize") int columnSize,
 //            @JsonProperty("decimalDigits") int decimalDigits)
     {
@@ -35,6 +37,7 @@ public class HugeGraphTypeHandle
 //        this.decimalDigits = decimalDigits;
     }
 
+    @JsonProperty
     public int getHugeGraphType()
     {
         return hugeGraphType;
@@ -77,7 +80,7 @@ public class HugeGraphTypeHandle
     public String toString()
     {
         return toStringHelper(this)
-                .add("jdbcType", hugeGraphType)
+                .add("hugeGraphType", hugeGraphType)
 //                .add("columnSize", columnSize)
 //                .add("decimalDigits", decimalDigits)
                 .toString();
