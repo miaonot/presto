@@ -96,6 +96,11 @@ public class Gremlin
         return name;
     }
 
+    public QualifiedName getNameWithoutGremlin()
+    {
+        return QualifiedName.of(name.getSuffix().split("~")[0]);
+    }
+
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {

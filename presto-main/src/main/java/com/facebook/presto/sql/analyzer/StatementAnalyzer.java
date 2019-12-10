@@ -965,7 +965,7 @@ class StatementAnalyzer
             ImmutableList.Builder<Field> fields = ImmutableList.builder();
             for (ColumnMetadata column : tableMetadata.getColumns()) {
                 Field field = Field.newQualified(
-                        node.getName(),
+                        node.getNameWithoutGremlin(),
                         Optional.of(column.getName()),
                         column.getType(),
                         column.isHidden(),
