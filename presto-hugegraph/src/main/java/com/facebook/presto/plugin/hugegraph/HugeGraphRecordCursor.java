@@ -77,7 +77,7 @@ public class HugeGraphRecordCursor
     {
         checkState(!closed, "cursor is closed");
         result = resultSet.one();
-        return !result.isNull();
+        return result != null;
     }
 
     @Override
