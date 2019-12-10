@@ -954,7 +954,6 @@ class StatementAnalyzer
         {
             //todo: 尝试.make gremlin like "table", no column massage, hardcode first.
 
-            analysis.setUpdateType("GREMLIN");
             QualifiedObjectName table = createQualifiedObjectName(session, node, node.getName());
             analysis.addEmptyColumnReferencesForTable(accessControl, session.getIdentity(), table);
 
