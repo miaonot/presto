@@ -31,6 +31,7 @@ public final class HugeGraphTableHandle
     private final String catalogName;
     private final String schemaName;
     private final String tableName;
+    private final String gremlinQuery;
 
     @JsonCreator
     public HugeGraphTableHandle(
@@ -38,13 +39,15 @@ public final class HugeGraphTableHandle
             @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
             @JsonProperty("catalogName") @Nullable String catalogName,
             @JsonProperty("schemaName") @Nullable String schemaName,
-            @JsonProperty("tableName") String tableName)
+            @JsonProperty("tableName") String tableName,
+            @JsonProperty("gremlinQuery") String gremlinQuery)
     {
         this.connectorId = connectorId;
         this.schemaTableName = schemaTableName;
         this.catalogName = catalogName;
         this.schemaName = schemaName;
         this.tableName = tableName;
+        this.gremlinQuery = gremlinQuery;
     }
 
     @JsonProperty
@@ -77,6 +80,12 @@ public final class HugeGraphTableHandle
     public String getTableName()
     {
         return tableName;
+    }
+
+    @JsonProperty
+    public String getGremlinQuery()
+    {
+        return gremlinQuery;
     }
 
     @Override

@@ -77,6 +77,7 @@ public class Gremlin
             schemaName = connector;
             objectName = ids.get(0);
         }
+        objectName += "~" + sentence;
         this.name = QualifiedName.of(catalogName, schemaName, objectName);
     }
 

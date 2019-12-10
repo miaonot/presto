@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Iterables.contains;
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.transform;
 import static java.util.Locale.ENGLISH;
@@ -48,7 +49,14 @@ public class QualifiedName
     {
         requireNonNull(originalParts, "originalParts is null");
         checkArgument(!isEmpty(originalParts), "originalParts is empty");
-        List<String> parts = ImmutableList.copyOf(transform(originalParts, part -> part.toLowerCase(ENGLISH)));
+        ImmutableList<String> validate = ImmutableList.copyOf(originalParts);
+        List<String> parts;
+        if (validate.size() == 3 && validate.get(2).contains("~")) {
+            String[] nameAndQuery = validate.get(2).split("~");
+            parts = ImmutableList.of(validate.get(0).toLowerCase(ENGLISH), validate.get(1).toLowerCase(ENGLISH), nameAndQuery[0].toLowerCase(ENGLISH) + "~" + nameAndQuery[1]);
+        } else {
+            parts = ImmutableList.copyOf(transform(originalParts, part -> part.toLowerCase(ENGLISH)));
+        }
 
         return new QualifiedName(ImmutableList.copyOf(originalParts), parts);
     }

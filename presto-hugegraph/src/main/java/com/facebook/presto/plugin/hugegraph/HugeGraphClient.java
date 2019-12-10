@@ -101,26 +101,14 @@ public class HugeGraphClient
         }
     }
 
-//    public ConnectorSplitSource getSplits(HugeGraphTableLayoutHandle layoutHandle)
-//    {
-//        HugeGraphTableHandle tableHandle = layoutHandle.getTable();
-//        HugeGraphSplit jdbcSplit = new HugeGraphSplit
-//                (connectorId,
-//                tableHandle.getCatalogName(),
-//                tableHandle.getSchemaName(),
-//                tableHandle.getTableName(),
-//                layoutHandle.getTupleDomain(),
-//                Optional.empty());
-//        return new FixedSplitSource(ImmutableList.of(jdbcSplit));
-//    }
-
     @Nullable
     public HugeGraphTableHandle getTableHandle(SchemaTableName schemaTableName)
     {
         //Hard core
         String schema = schemaTableName.getSchemaName();
         String tableName = schemaTableName.getTableName();
-        return new HugeGraphTableHandle(connectorId, schemaTableName, "hugegraph", schema, tableName);
+        String[] names = tableName.split("~");
+        return new HugeGraphTableHandle(connectorId, schemaTableName, "hugegraph", schema, names[0], names[1]);
     }
 
     public List<HugeGraphColumnHandle> getColumns(ConnectorSession session, HugeGraphTableHandle tableHandle)
@@ -155,7 +143,8 @@ public class HugeGraphClient
                 tableHandle.getSchemaName(),
                 tableHandle.getTableName(),
                 layoutHandle.getTupleDomain(),
-                Optional.empty(), null);
+                Optional.empty(),
+                tableHandle.getGremlinQuery());
         return new FixedSplitSource(ImmutableList.of(hugeGraphSplit));
     }
 }

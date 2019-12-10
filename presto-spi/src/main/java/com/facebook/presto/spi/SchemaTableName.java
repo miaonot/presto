@@ -30,7 +30,13 @@ public class SchemaTableName
     public SchemaTableName(@JsonProperty("schema") String schemaName, @JsonProperty("table") String tableName)
     {
         this.schemaName = checkNotEmpty(schemaName, "schemaName").toLowerCase(ENGLISH);
-        this.tableName = checkNotEmpty(tableName, "tableName").toLowerCase(ENGLISH);
+        checkNotEmpty(tableName, "tableName");
+        if (tableName.contains("~")) {
+            String[] names = tableName.split("~");
+            this.tableName = names[0].toLowerCase(ENGLISH) + "~" + names[1];
+        } else {
+            this.tableName = tableName.toLowerCase(ENGLISH);
+        }
     }
 
     @JsonProperty("schema")

@@ -84,6 +84,12 @@ public final class MetadataUtil
         if (value == null) {
             throw new NullPointerException(format("%s is null", name));
         }
+        if (name.equals("objectName")) {
+            if (value.contains("~")) {
+                checkArgument(value.split("~")[0].equals(value.split("~")[0].toLowerCase(ENGLISH)), "%s is not lowercase: %s", name, value);
+                return value;
+            }
+        }
         checkArgument(value.equals(value.toLowerCase(ENGLISH)), "%s is not lowercase: %s", name, value);
         return value;
     }
