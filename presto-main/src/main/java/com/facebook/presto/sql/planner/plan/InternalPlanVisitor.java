@@ -109,6 +109,11 @@ public abstract class InternalPlanVisitor<R, C>
         return visitPlan(node, context);
     }
 
+    public R visitGremlin(GremlinNode node, C context)
+    {
+        return visitPlan(node, context);
+    }
+
     public R visitMetadataDelete(MetadataDeleteNode node, C context)
     {
         return visitPlan(node, context);

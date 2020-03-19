@@ -115,6 +115,7 @@ public class QueryRunner
 
     public Query startQuery(String query)
     {
+        //cli-6
         return new Query(startInternalQuery(session.get(), query), debug);
     }
 
@@ -123,12 +124,13 @@ public class QueryRunner
         return startInternalQuery(stripTransactionId(session.get()), query);
     }
 
+    //cli-6
     private StatementClient startInternalQuery(ClientSession session, String query)
     {
         OkHttpClient.Builder builder = httpClient.newBuilder();
         sslSetup.accept(builder);
         OkHttpClient client = builder.build();
-
+        //cli-7
         return newStatementClient(client, session, query);
     }
 

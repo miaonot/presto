@@ -255,6 +255,7 @@ relationPrimary
     | LATERAL '(' query ')'                                           #lateral
     | '(' relation ')'                                                #parenthesizedRelation
     | GREMLIN ('['sentence=string((',' connector=string)?',' name=string)?']')    #gremlin
+    | MATCH ('('node1=string',' node2=string',' pathcontrol=string')') ('['AS graphname=string']')?    #match
     ;
 
 expression
@@ -611,6 +612,7 @@ LOCALTIME: 'LOCALTIME';
 LOCALTIMESTAMP: 'LOCALTIMESTAMP';
 LOGICAL: 'LOGICAL';
 MAP: 'MAP';
+MATCH: 'MATCH';
 MINUTE: 'MINUTE';
 MONTH: 'MONTH';
 NATURAL: 'NATURAL';

@@ -147,10 +147,11 @@ public class PluginManager
                 loadPlugin(file.getAbsolutePath());
             }
         }
-
+/*
         for (String plugin : plugins) {
             loadPlugin(plugin);
         }
+        */
 
         metadata.verifyComparableOrderableContract();
 

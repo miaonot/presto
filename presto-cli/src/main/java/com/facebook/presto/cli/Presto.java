@@ -18,7 +18,7 @@ import static io.airlift.airline.SingleCommand.singleCommand;
 public final class Presto
 {
     private Presto() {}
-
+    //cli-1
     public static void main(String[] args)
     {
         Console console = singleCommand(Console.class).parse(args);
@@ -27,7 +27,7 @@ public final class Presto
                 console.versionOption.showVersionIfRequested()) {
             return;
         }
-
+        //cli-2
         System.exit(console.run() ? 0 : 1);
     }
 }

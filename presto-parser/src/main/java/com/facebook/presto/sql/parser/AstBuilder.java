@@ -95,6 +95,7 @@ import com.facebook.presto.sql.tree.LikeClause;
 import com.facebook.presto.sql.tree.LikePredicate;
 import com.facebook.presto.sql.tree.LogicalBinaryExpression;
 import com.facebook.presto.sql.tree.LongLiteral;
+import com.facebook.presto.sql.tree.Match;
 import com.facebook.presto.sql.tree.NaturalJoin;
 import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.NodeLocation;
@@ -1089,6 +1090,19 @@ class AstBuilder
     public Node visitParenthesizedRelation(SqlBaseParser.ParenthesizedRelationContext context)
     {
         return visit(context.relation());
+    }
+
+    @Override
+    public Node visitMatch(SqlBaseParser.MatchContext context)
+    {
+        String node1 = ((StringLiteral) visit(context.node1)).getValue();
+        String node2 = ((StringLiteral) visit(context.node2)).getValue();
+        String pathcontrol = ((StringLiteral) visit(context.pathcontrol)).getValue();
+        if(context.graphname != null){
+            String graphname = ((StringLiteral) visit(context.graphname)).getValue();
+            return new Match(getLocation(context), node1, node2, pathcontrol, graphname);
+        }
+        return new Match(getLocation(context), node1, node2, pathcontrol);
     }
 
     @Override

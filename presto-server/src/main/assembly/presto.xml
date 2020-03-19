@@ -169,4 +169,11 @@
             <outputDirectory>plugin/presto-hugegraph</outputDirectory>
         </fileSet>
     </fileSets>
+
+    <artifactSet to="plugin/presto-gremlin">
+        <artifact id="${project.groupId}:presto-gremlin:zip:${project.version}">
+            <unpack />
+        </artifact>
+    </artifactSet>
+
 </assembly>

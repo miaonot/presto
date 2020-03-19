@@ -134,7 +134,7 @@ public class StatementResource
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createQuery(
+    public Response createQuery( //m-1 接收 cli 请求
             String statement,
             @HeaderParam(X_FORWARDED_PROTO) String proto,
             @Context HttpServletRequest servletRequest,
@@ -156,6 +156,7 @@ public class StatementResource
         SessionContext sessionContext = new HttpRequestSessionContext(servletRequest);
 
         ExchangeClient exchangeClient = exchangeClientSupplier.get(new SimpleLocalMemoryContext(newSimpleAggregatedMemoryContext(), StatementResource.class.getSimpleName()));
+        //m-2
         Query query = Query.create(
                 sessionContext,
                 statement,

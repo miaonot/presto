@@ -296,9 +296,11 @@ public class SqlQueryManager
         return queryIdGenerator.createNextQueryId();
     }
 
+    //m-
     @Override
     public ListenableFuture<?> createQuery(QueryId queryId, SessionContext sessionContext, String query)
     {
+
         QueryCreationFuture queryCreationFuture = new QueryCreationFuture();
         queryExecutor.submit(embedVersion.embedVersion(() -> {
             try {

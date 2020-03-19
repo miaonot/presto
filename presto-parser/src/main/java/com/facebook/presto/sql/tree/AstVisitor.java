@@ -432,6 +432,8 @@ public abstract class AstVisitor<R, C>
         return visitRelation(node, context);
     }
 
+    protected R visitMatch(Match node,C context) { return visitRelation(node, context); }
+
     protected R visitValues(Values node, C context)
     {
         return visitQueryBody(node, context);

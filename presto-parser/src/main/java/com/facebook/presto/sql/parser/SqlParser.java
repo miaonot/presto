@@ -140,9 +140,9 @@ public class SqlParser
                     }
                 }
             });
-
+            //做一些解析时的处理，包括异常处理
             parser.addParseListener(new PostProcessor(Arrays.asList(parser.getRuleNames()), parsingOptions.getWarningConsumer()));
-
+            //重写lexer和parser错误发生时的处理
             lexer.removeErrorListeners();
             lexer.addErrorListener(LEXER_ERROR_LISTENER);
 

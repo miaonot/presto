@@ -114,7 +114,7 @@ class StatementClientV1
     private final String clientCapabilities;
 
     private final AtomicReference<State> state = new AtomicReference<>(State.RUNNING);
-
+    //cli-8
     public StatementClientV1(OkHttpClient httpClient, ClientSession session, String query)
     {
         requireNonNull(httpClient, "httpClient is null");
@@ -127,9 +127,9 @@ class StatementClientV1
         this.requestTimeoutNanos = session.getClientRequestTimeout();
         this.user = session.getUser();
         this.clientCapabilities = Joiner.on(",").join(ClientCapabilities.values());
-
+        //cli-9
         Request request = buildQueryRequest(session, query);
-
+        //cli-10  发起这个请求
         JsonResponse<QueryResults> response = JsonResponse.execute(QUERY_RESULTS_CODEC, httpClient, request);
         if ((response.getStatusCode() != HTTP_OK) || !response.hasValue()) {
             state.compareAndSet(State.RUNNING, State.CLIENT_ERROR);
@@ -138,13 +138,14 @@ class StatementClientV1
 
         processResponse(response.getHeaders(), response.getValue());
     }
-
+    //cli-9
     private Request buildQueryRequest(ClientSession session, String query)
     {
         HttpUrl url = HttpUrl.get(session.getServer());
         if (url == null) {
             throw new ClientException("Invalid server URL: " + session.getServer());
         }
+        //构建一个目标Rest地址为/v1/statement的请求。
         url = url.newBuilder().encodedPath("/v1/statement").build();
 
         Request.Builder builder = prepareRequest(url)
@@ -386,6 +387,7 @@ class StatementClientV1
 
             JsonResponse<QueryResults> response;
             try {
+
                 response = JsonResponse.execute(QUERY_RESULTS_CODEC, httpClient, request);
             }
             catch (RuntimeException e) {

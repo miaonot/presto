@@ -18,9 +18,9 @@ import okhttp3.OkHttpClient;
 public final class StatementClientFactory
 {
     private StatementClientFactory() {}
-
+            //cli-7
     public static StatementClient newStatementClient(OkHttpClient httpClient, ClientSession session, String query)
-    {
+    {       //cli-8
         return new StatementClientV1(httpClient, session, query);
     }
 }

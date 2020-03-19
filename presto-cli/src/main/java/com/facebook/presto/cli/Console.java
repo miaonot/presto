@@ -141,9 +141,11 @@ public class Console
                 Optional.ofNullable(clientOptions.krb5CredentialCachePath),
                 !clientOptions.krb5DisableRemoteServiceHostnameCanonicalization)) {
             if (hasQuery) {
+
+                //cli-3-1/2 如果是通过脚本的方式执行
                 return executeCommand(queryRunner, query, clientOptions.outputFormat, clientOptions.ignoreErrors);
             }
-
+            //cli-3-2/2 如果是通过控制台提交作业
             runConsole(queryRunner, exiting);
             return true;
         }
@@ -172,13 +174,18 @@ public class Console
         return "";
     }
 
+    //cli-3-2/2 设置了一个AtomicBoolean existing变量来判断Client是否存在，如果不存在则不再提交后续的SQL
+    // （对应在控制台中输入了多条sql语句，并用;间隔，当前边的语句正在执行时退出Console，此时后续的sql就不会被提交了）。
     private static void runConsole(QueryRunner queryRunner, AtomicBoolean exiting)
     {
         try (TableNameCompleter tableNameCompleter = new TableNameCompleter(queryRunner);
                 LineReader reader = new LineReader(getHistory(), commandCompleter(), lowerCaseCommandCompleter(), tableNameCompleter)) {
             tableNameCompleter.populateCache();
             StringBuilder buffer = new StringBuilder();
-            while (!exiting.get()) {
+            while (!exiting.get()) {  //循环处理LineReader对象读取到的命令
+               // 这个类每读取一行输入就会将值传递给一个名为buffer的StringBuilder对象，
+               // 然后根据“;”和“\\G”来识别一个完整的SQL，并将SQL交给process方法进行调度。
+                //最后会将剩下不完整的语句赋值给重新初始化的buffer对象作为下一条SQL的开头。
                 // read a line of input from user
                 String prompt = PROMPT_NAME;
                 String schema = queryRunner.getSession().getSchema();
@@ -253,7 +260,7 @@ public class Console
                     if (split.terminator().equals("\\G")) {
                         outputFormat = OutputFormat.VERTICAL;
                     }
-
+                    //cli-4
                     process(queryRunner, split.statement(), outputFormat, tableNameCompleter::populateCache, true);
                     reader.getHistory().add(squeezeStatement(split.statement()) + split.terminator());
                 }
@@ -271,6 +278,7 @@ public class Console
         }
     }
 
+    //cli-3-1/2 按照“;”切分出SQL语句，并依次调用Console类的process方法来提交作业。
     private static boolean executeCommand(QueryRunner queryRunner, String query, OutputFormat outputFormat, boolean ignoreErrors)
     {
         boolean success = true;
@@ -292,6 +300,7 @@ public class Console
         return success;
     }
 
+    //cli-4
     private static boolean process(QueryRunner queryRunner, String sql, OutputFormat outputFormat, Runnable schemaChanged, boolean interactive)
     {
         String finalSql;
@@ -308,7 +317,7 @@ public class Console
             }
             return false;
         }
-
+                                        //cli-5
         try (Query query = queryRunner.startQuery(finalSql)) {
             boolean success = query.renderOutput(System.out, outputFormat, interactive);
 

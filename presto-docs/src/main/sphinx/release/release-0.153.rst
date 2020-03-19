@@ -154,7 +154,7 @@ SPI Changes
 * Use a whitelist model for plugin class loading. This prevents connectors
   from seeing any classes that are not part of the JDK (bootstrap classes)
   or the SPI.
-* Update ``presto-maven-plugin``, which provides a Maven packaging and
+* Update ``-plugin``, which provides a Maven packaging and
   lifecycle for plugins, to validate that every SPI dependency is marked
   as ``provided`` scope and that only SPI dependencies use ``provided``
   scope. This helps find potential dependency and class loader issues

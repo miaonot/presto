@@ -672,12 +672,14 @@ class StaticFunctionNamespace
             builder.scalar(LegacyLogFunction.class);
         }
 
+        //将构造的Function加入到FunctionMap
         addFunctions(builder.getFunctions());
     }
 
     @Override
     public final synchronized void addFunctions(List<? extends SqlFunction> functions)
     {
+        //同一类型字段的functionname不能重复
         for (SqlFunction function : functions) {
             for (SqlFunction existingFunction : this.functions.list()) {
                 checkArgument(!function.getSignature().equals(existingFunction.getSignature()), "Function already registered: %s", function.getSignature());
