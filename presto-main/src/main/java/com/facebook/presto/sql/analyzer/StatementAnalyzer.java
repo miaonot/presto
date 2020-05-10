@@ -89,6 +89,7 @@ import com.facebook.presto.sql.tree.JoinOn;
 import com.facebook.presto.sql.tree.JoinUsing;
 import com.facebook.presto.sql.tree.Lateral;
 import com.facebook.presto.sql.tree.LongLiteral;
+import com.facebook.presto.sql.tree.Match;
 import com.facebook.presto.sql.tree.NaturalJoin;
 import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.NodeRef;
@@ -1014,6 +1015,41 @@ class StatementAnalyzer
             analysis.registerTable(table, tableHandle.get());
 
             return createAndAssignScope(table, scope, fields.build());
+        }
+
+        @Override
+        protected Scope visitMatch(Match match, Optional<Scope> scope)
+        {
+            String graphPattern = match.getGraphPattern().toString();
+
+            //TODO: Catalog name need be decided by metadata db.
+            //TODO: Create a new interface to pass graph pattern to get table handle.
+            QualifiedName matchName = QualifiedName.of("neo4j", graphPattern, match.getRelationName().getValue());
+            QualifiedObjectName name = createQualifiedObjectName(session, match, matchName);
+            Optional<TableHandle> tableHandle = metadata.getTableHandle(session, name);
+            TableMetadata tableMetadata = metadata.getTableMetadata(session, tableHandle.get());
+            Map<String, ColumnHandle> columnHandles = metadata.getColumnHandles(session, tableHandle.get());
+
+            ImmutableList.Builder<Field> fields = ImmutableList.builder();
+            for (ColumnMetadata column : tableMetadata.getColumns()) {
+                Field field = Field.newQualified(
+                        matchName,
+                        // TODO: change this column name to user defined column name
+                        Optional.of(column.getName()),
+                        column.getType(),
+                        column.isHidden(),
+                        Optional.of(name),
+                        Optional.of(column.getName()),
+                        false);
+                fields.add(field);
+                ColumnHandle columnHandle = columnHandles.get(column.getName());
+                checkArgument(columnHandle != null, "Unknown field %s", field);
+                analysis.setColumn(field, columnHandle);
+            }
+
+            analysis.registerMatch(match, tableHandle.get());
+
+            return createAndAssignScope(match, scope, fields.build());
         }
 
         @Override

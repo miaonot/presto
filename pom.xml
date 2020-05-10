@@ -157,6 +157,7 @@
         <module>presto-spark-launcher</module>
         <module>presto-spark-testing</module>
         <module>presto-druid</module>
+        <module>presto-neo4j</module>
     </modules>
 
     <dependencyManagement>
@@ -495,6 +496,12 @@
             <dependency>
                 <groupId>com.facebook.presto</groupId>
                 <artifactId>presto-spark</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.facebook.presto</groupId>
+                <artifactId>presto-neo4j</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

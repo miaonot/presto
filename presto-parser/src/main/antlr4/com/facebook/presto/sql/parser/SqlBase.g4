@@ -291,6 +291,11 @@ sampleType
 
 aliasedRelation
     : relationPrimary (AS? identifier columnAliases?)?
+    | match
+    ;
+
+match
+    : MATCH graphPattern AS identifier columnAliases?
     ;
 
 columnAliases
@@ -303,6 +308,46 @@ relationPrimary
     | UNNEST '(' expression (',' expression)* ')' (WITH ORDINALITY)?  #unnest
     | LATERAL '(' query ')'                                           #lateral
     | '(' relation ')'                                                #parenthesizedRelation
+    ;
+
+graphPattern
+    : identifier '=' anonymousPattern
+    | anonymousPattern
+    ;
+
+anonymousPattern
+    : nodePattern ( patternElements )*
+    ;
+
+patternElements
+    : relationshipPattern nodePattern
+    ;
+
+relationshipPattern
+    : lt='<-' relationshipDetail rt='->'
+    | lt='<-' relationshipDetail rt='-'
+    | lt='-' relationshipDetail rt='->'
+    | lt='-' relationshipDetail rt='-'
+    ;
+
+relationshipDetail
+    : '[' (identifier)? labelNames? (relationshipRange)? ']'
+    ;
+
+relationshipRange
+    :  '*' ( lower=INTEGER_VALUE )? ( '..' ( higher=INTEGER_VALUE )? )? ;
+
+nodePattern
+    : '(' (identifier)? labelNames? ')'
+    ;
+
+//TODO: IDENTIFIER包括了':'，会使得多个labelName被解析成了一个，后续需要重新定义
+labelNames
+    : labelName ( labelName )*
+    ;
+
+labelName
+    : ':' identifier
     ;
 
 expression
@@ -660,6 +705,7 @@ LOCALTIME: 'LOCALTIME';
 LOCALTIMESTAMP: 'LOCALTIMESTAMP';
 LOGICAL: 'LOGICAL';
 MAP: 'MAP';
+MATCH: 'MATCH';
 MINUTE: 'MINUTE';
 MONTH: 'MONTH';
 NATURAL: 'NATURAL';

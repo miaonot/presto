@@ -19,6 +19,7 @@ import com.facebook.presto.sql.tree.AllColumns;
 import com.facebook.presto.sql.tree.AlterFunction;
 import com.facebook.presto.sql.tree.AlterRoutineCharacteristics;
 import com.facebook.presto.sql.tree.Analyze;
+import com.facebook.presto.sql.tree.AnonymousPattern;
 import com.facebook.presto.sql.tree.ArithmeticBinaryExpression;
 import com.facebook.presto.sql.tree.ArithmeticUnaryExpression;
 import com.facebook.presto.sql.tree.ArrayConstructor;
@@ -72,6 +73,7 @@ import com.facebook.presto.sql.tree.GenericLiteral;
 import com.facebook.presto.sql.tree.Grant;
 import com.facebook.presto.sql.tree.GrantRoles;
 import com.facebook.presto.sql.tree.GrantorSpecification;
+import com.facebook.presto.sql.tree.GraphPattern;
 import com.facebook.presto.sql.tree.GroupBy;
 import com.facebook.presto.sql.tree.GroupingElement;
 import com.facebook.presto.sql.tree.GroupingOperation;
@@ -90,6 +92,8 @@ import com.facebook.presto.sql.tree.Join;
 import com.facebook.presto.sql.tree.JoinCriteria;
 import com.facebook.presto.sql.tree.JoinOn;
 import com.facebook.presto.sql.tree.JoinUsing;
+import com.facebook.presto.sql.tree.LabelName;
+import com.facebook.presto.sql.tree.LabelNames;
 import com.facebook.presto.sql.tree.LambdaArgumentDeclaration;
 import com.facebook.presto.sql.tree.LambdaExpression;
 import com.facebook.presto.sql.tree.Lateral;
@@ -97,14 +101,17 @@ import com.facebook.presto.sql.tree.LikeClause;
 import com.facebook.presto.sql.tree.LikePredicate;
 import com.facebook.presto.sql.tree.LogicalBinaryExpression;
 import com.facebook.presto.sql.tree.LongLiteral;
+import com.facebook.presto.sql.tree.Match;
 import com.facebook.presto.sql.tree.NaturalJoin;
 import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.NodeLocation;
+import com.facebook.presto.sql.tree.NodePattern;
 import com.facebook.presto.sql.tree.NotExpression;
 import com.facebook.presto.sql.tree.NullIfExpression;
 import com.facebook.presto.sql.tree.NullLiteral;
 import com.facebook.presto.sql.tree.OrderBy;
 import com.facebook.presto.sql.tree.Parameter;
+import com.facebook.presto.sql.tree.PatternElements;
 import com.facebook.presto.sql.tree.Prepare;
 import com.facebook.presto.sql.tree.PrincipalSpecification;
 import com.facebook.presto.sql.tree.Property;
@@ -114,6 +121,9 @@ import com.facebook.presto.sql.tree.Query;
 import com.facebook.presto.sql.tree.QueryBody;
 import com.facebook.presto.sql.tree.QuerySpecification;
 import com.facebook.presto.sql.tree.Relation;
+import com.facebook.presto.sql.tree.RelationshipDetail;
+import com.facebook.presto.sql.tree.RelationshipPattern;
+import com.facebook.presto.sql.tree.RelationshipRange;
 import com.facebook.presto.sql.tree.RenameColumn;
 import com.facebook.presto.sql.tree.RenameSchema;
 import com.facebook.presto.sql.tree.RenameTable;
@@ -1101,18 +1111,23 @@ class AstBuilder
     @Override
     public Node visitAliasedRelation(SqlBaseParser.AliasedRelationContext context)
     {
-        Relation child = (Relation) visit(context.relationPrimary());
+        if (context.relationPrimary() != null) {
+            Relation child = (Relation) visit(context.relationPrimary());
 
-        if (context.identifier() == null) {
-            return child;
+            if (context.identifier() == null) {
+                return child;
+            }
+
+            List<Identifier> aliases = null;
+            if (context.columnAliases() != null) {
+                aliases = visit(context.columnAliases().identifier(), Identifier.class);
+            }
+
+            return new AliasedRelation(getLocation(context), child, (Identifier) visit(context.identifier()), aliases);
         }
-
-        List<Identifier> aliases = null;
-        if (context.columnAliases() != null) {
-            aliases = visit(context.columnAliases().identifier(), Identifier.class);
+        else {
+            return visit(context.match());
         }
-
-        return new AliasedRelation(getLocation(context), child, (Identifier) visit(context.identifier()), aliases);
     }
 
     @Override
@@ -1137,6 +1152,117 @@ class AstBuilder
     public Node visitLateral(SqlBaseParser.LateralContext context)
     {
         return new Lateral(getLocation(context), (Query) visit(context.query()));
+    }
+
+    @Override
+    public Node visitMatch(SqlBaseParser.MatchContext context)
+    {
+        GraphPattern graphPattern = (GraphPattern) visit(context.graphPattern());
+
+        Identifier name = (Identifier) visit(context.identifier());
+
+        Optional<List<Identifier>> columnAliases = Optional.empty();
+        if (context.columnAliases() != null) {
+            columnAliases = Optional.of(visit(context.columnAliases().identifier(), Identifier.class));
+        }
+        return new Match(getLocation(context), graphPattern, name, columnAliases);
+    }
+
+    @Override
+    public Node visitGraphPattern(SqlBaseParser.GraphPatternContext context)
+    {
+        Optional<Identifier> token = visitIfPresent(context.identifier(), Identifier.class);
+
+        AnonymousPattern anonymousPattern = (AnonymousPattern) visit(context.anonymousPattern());
+
+        return new GraphPattern(getLocation(context), token, anonymousPattern);
+    }
+
+    @Override
+    public Node visitAnonymousPattern(SqlBaseParser.AnonymousPatternContext context)
+    {
+        NodePattern nodePattern = (NodePattern) visit(context.nodePattern());
+
+        Optional<List<PatternElements>> elements = Optional.empty();
+        if (context.patternElements() != null) {
+            elements = Optional.of(visit(context.patternElements(), PatternElements.class));
+        }
+        return new AnonymousPattern(getLocation(context), nodePattern, elements);
+    }
+
+    @Override
+    public Node visitPatternElements(SqlBaseParser.PatternElementsContext context)
+    {
+        return new PatternElements(
+                getLocation(context),
+                (RelationshipPattern) visit(context.relationshipPattern()),
+                (NodePattern) visit(context.nodePattern()));
+    }
+
+    @Override
+    public Node visitRelationshipPattern(SqlBaseParser.RelationshipPatternContext context)
+    {
+        return new RelationshipPattern(
+                getLocation(context),
+                context.lt.getText(),
+                context.rt.getText(),
+                (RelationshipDetail) visit(context.relationshipDetail()));
+    }
+
+    @Override
+    public Node visitRelationshipDetail(SqlBaseParser.RelationshipDetailContext context)
+    {
+        Optional<Identifier> identifier = Optional.empty();
+        if (context.identifier() != null) {
+            identifier = Optional.of((Identifier) visit(context.identifier()));
+        }
+
+        Optional<LabelNames> labelNames = Optional.empty();
+        if (context.labelNames() != null) {
+            labelNames = Optional.of((LabelNames) visit(context.labelNames()));
+        }
+
+        Optional<RelationshipRange> range = Optional.empty();
+        if (context.relationshipRange() != null) {
+            range = Optional.of((RelationshipRange) visit(context.relationshipRange()));
+        }
+        return new RelationshipDetail(getLocation(context), identifier, labelNames, range);
+    }
+
+    @Override
+    public Node visitRelationshipRange(SqlBaseParser.RelationshipRangeContext context)
+    {
+        return new RelationshipRange(
+                getLocation(context),
+                Optional.of(Integer.valueOf(context.lower.getText())),
+                Optional.of(Integer.valueOf(context.higher.getText())));
+    }
+
+    @Override
+    public Node visitNodePattern(SqlBaseParser.NodePatternContext context)
+    {
+        Optional<Identifier> nodeName = Optional.empty();
+        if (context.identifier() != null) {
+            nodeName = Optional.of((Identifier) visit(context.identifier()));
+        }
+
+        Optional<LabelNames> labelNames = Optional.empty();
+        if (context.labelNames() != null) {
+            labelNames = Optional.of((LabelNames) visit(context.labelNames()));
+        }
+        return new NodePattern(getLocation(context), nodeName, labelNames);
+    }
+
+    @Override
+    public Node visitLabelNames(SqlBaseParser.LabelNamesContext context)
+    {
+        return new LabelNames(getLocation(context), visit(context.labelName(), LabelName.class));
+    }
+
+    @Override
+    public Node visitLabelName(SqlBaseParser.LabelNameContext context)
+    {
+        return new LabelName(getLocation(context), (Identifier) visit(context.identifier()));
     }
 
     @Override

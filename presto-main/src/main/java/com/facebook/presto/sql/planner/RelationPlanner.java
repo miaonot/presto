@@ -23,6 +23,7 @@ import com.facebook.presto.spi.plan.Assignments;
 import com.facebook.presto.spi.plan.ExceptNode;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.IntersectNode;
+import com.facebook.presto.spi.plan.MatchNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeIdAllocator;
 import com.facebook.presto.spi.plan.ProjectNode;
@@ -63,6 +64,7 @@ import com.facebook.presto.sql.tree.Join;
 import com.facebook.presto.sql.tree.JoinUsing;
 import com.facebook.presto.sql.tree.LambdaArgumentDeclaration;
 import com.facebook.presto.sql.tree.Lateral;
+import com.facebook.presto.sql.tree.Match;
 import com.facebook.presto.sql.tree.NodeRef;
 import com.facebook.presto.sql.tree.QualifiedName;
 import com.facebook.presto.sql.tree.Query;
@@ -169,6 +171,25 @@ class RelationPlanner
         List<VariableReferenceExpression> outputVariables = outputVariablesBuilder.build();
         PlanNode root = new TableScanNode(idAllocator.getNextId(), handle, outputVariables, columns.build(), TupleDomain.all(), TupleDomain.all());
         return new RelationPlan(root, scope, outputVariables);
+    }
+
+    @Override
+    protected RelationPlan visitMatch(Match node, Void context)
+    {
+        Scope scope = analysis.getScope(node);
+
+        TableHandle handle = analysis.getTableHandle(node);
+
+        ImmutableList.Builder<VariableReferenceExpression> outputVariablesBuilder = ImmutableList.builder();
+        ImmutableMap.Builder<VariableReferenceExpression, ColumnHandle> columns = ImmutableMap.builder();
+        for (Field field : scope.getRelationType().getAllFields()) {
+            VariableReferenceExpression variable = variableAllocator.newVariable(field.getName().get(), field.getType());
+            outputVariablesBuilder.add(variable);
+            columns.put(variable, analysis.getColumn(field));
+        }
+        List<VariableReferenceExpression> outputVariables = outputVariablesBuilder.build();
+        MatchNode matchNode = new MatchNode(idAllocator.getNextId(), handle, node.getGraphPattern().toString(), outputVariables, columns.build());
+        return new RelationPlan(matchNode, scope, outputVariables);
     }
 
     @Override

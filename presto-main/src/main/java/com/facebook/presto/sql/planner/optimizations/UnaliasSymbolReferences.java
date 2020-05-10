@@ -23,6 +23,7 @@ import com.facebook.presto.spi.plan.ExceptNode;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.IntersectNode;
 import com.facebook.presto.spi.plan.LimitNode;
+import com.facebook.presto.spi.plan.MatchNode;
 import com.facebook.presto.spi.plan.Ordering;
 import com.facebook.presto.spi.plan.OrderingScheme;
 import com.facebook.presto.spi.plan.PlanNode;
@@ -262,6 +263,12 @@ public class UnaliasSymbolReferences
 
         @Override
         public PlanNode visitTableScan(TableScanNode node, RewriteContext<Void> context)
+        {
+            return node;
+        }
+
+        @Override
+        public PlanNode visitMatch(MatchNode node, RewriteContext<Void> context)
         {
             return node;
         }

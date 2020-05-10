@@ -766,4 +766,54 @@ public abstract class AstVisitor<R, C>
     {
         return visitStatement(node, context);
     }
+
+    protected R visitMatch(Match node, C context)
+    {
+        return visitRelation(node, context);
+    }
+
+    protected R visitGraphPattern(GraphPattern node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    protected R visitLabelName(LabelName node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    protected R visitLabelNames(LabelNames node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    protected R visitNodePattern(NodePattern node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    protected R visitRelationshipRange(RelationshipRange node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    protected R visitRelationshipDetail(RelationshipDetail node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    protected R visitRelationshipPattern(RelationshipPattern node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    protected R visitPatternElements(PatternElements node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    protected R visitAnonymousPattern(AnonymousPattern node, C context)
+    {
+        return visitNode(node, context);
+    }
 }

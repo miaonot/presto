@@ -22,6 +22,7 @@ import com.facebook.presto.spi.plan.ExceptNode;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.IntersectNode;
 import com.facebook.presto.spi.plan.LimitNode;
+import com.facebook.presto.spi.plan.MatchNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.ProjectNode;
 import com.facebook.presto.spi.plan.SetOperationNode;
@@ -506,6 +507,12 @@ public final class ValidateDependenciesChecker
         public Void visitTableScan(TableScanNode node, Set<VariableReferenceExpression> boundVariables)
         {
             //We don't have to do a check here as TableScanNode has no dependencies.
+            return null;
+        }
+
+        @Override
+        public Void visitMatch(MatchNode node, Set<VariableReferenceExpression> context)
+        {
             return null;
         }
 

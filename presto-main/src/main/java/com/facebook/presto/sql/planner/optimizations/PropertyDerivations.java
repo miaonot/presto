@@ -27,6 +27,7 @@ import com.facebook.presto.spi.SortingProperty;
 import com.facebook.presto.spi.plan.AggregationNode;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.LimitNode;
+import com.facebook.presto.spi.plan.MatchNode;
 import com.facebook.presto.spi.plan.OrderingScheme;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.ProjectNode;
@@ -765,6 +766,12 @@ public class PropertyDerivations
             properties.local(LocalProperties.translate(constantAppendedLocalProperties, column -> Optional.ofNullable(assignments.get(column))));
 
             return properties.build();
+        }
+
+        @Override
+        public ActualProperties visitMatch(MatchNode node, List<ActualProperties> context)
+        {
+            return ActualProperties.builder().global(singleStreamPartition()).build();
         }
 
         private Global deriveGlobalProperties(TableLayout layout, Map<ColumnHandle, VariableReferenceExpression> assignments, Map<ColumnHandle, ConstantExpression> constants)

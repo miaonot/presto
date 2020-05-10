@@ -34,6 +34,7 @@ import com.facebook.presto.spi.plan.ExceptNode;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.IntersectNode;
 import com.facebook.presto.spi.plan.LimitNode;
+import com.facebook.presto.spi.plan.MatchNode;
 import com.facebook.presto.spi.plan.OrderingScheme;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeId;
@@ -657,6 +658,15 @@ public class PlanPrinter
             }
             PlanNodeStats nodeStats = stats.map(s -> s.get(node.getId())).orElse(null);
             printTableScanInfo(nodeOutput, node, nodeStats);
+            return null;
+        }
+
+        @Override
+        public Void visitMatch(MatchNode node, Void context)
+        {
+            //TODO: add more detail
+            String match = node.getMatchStatement();
+            NodeRepresentation nodeOutput = addNode(node, "match", format("[%s]", match));
             return null;
         }
 

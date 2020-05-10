@@ -23,6 +23,7 @@ import com.facebook.presto.spi.connector.ConnectorSplitManager.SplitSchedulingSt
 import com.facebook.presto.spi.plan.AggregationNode;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.LimitNode;
+import com.facebook.presto.spi.plan.MatchNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeId;
 import com.facebook.presto.spi.plan.ProjectNode;
@@ -152,6 +153,21 @@ public class SplitSourceFactory
             Supplier<SplitSource> splitSourceSupplier = () -> splitSourceProvider.getSplits(
                     session,
                     table,
+                    getSplitSchedulingStrategy(stageExecutionDescriptor, node.getId()));
+
+            SplitSource splitSource = new LazySplitSource(splitSourceSupplier);
+
+            splitSources.add(splitSource);
+
+            return ImmutableMap.of(node.getId(), splitSource);
+        }
+
+        @Override
+        public Map<PlanNodeId, SplitSource> visitMatch(MatchNode node, Context context)
+        {
+            Supplier<SplitSource> splitSourceSupplier = () -> splitSourceProvider.getSplits(
+                    session,
+                    node.getTable(),
                     getSplitSchedulingStrategy(stageExecutionDescriptor, node.getId()));
 
             SplitSource splitSource = new LazySplitSource(splitSourceSupplier);

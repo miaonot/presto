@@ -54,6 +54,7 @@ Keyword                        SQL:2016      SQL-92
 ``LIKE``                       reserved      reserved
 ``LOCALTIME``                  reserved
 ``LOCALTIMESTAMP``             reserved
+``MATCH``                      reserved      reserved
 ``NATURAL``                    reserved      reserved
 ``NORMALIZE``                  reserved
 ``NOT``                        reserved      reserved

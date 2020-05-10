@@ -28,6 +28,7 @@ import com.facebook.presto.sql.tree.Identifier;
 import com.facebook.presto.sql.tree.InPredicate;
 import com.facebook.presto.sql.tree.Join;
 import com.facebook.presto.sql.tree.LambdaArgumentDeclaration;
+import com.facebook.presto.sql.tree.Match;
 import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.NodeRef;
 import com.facebook.presto.sql.tree.OrderBy;
@@ -107,6 +108,7 @@ public class Analysis
     private final ListMultimap<NodeRef<Node>, QuantifiedComparisonExpression> quantifiedComparisonSubqueries = ArrayListMultimap.create();
 
     private final Map<NodeRef<Table>, TableHandle> tables = new LinkedHashMap<>();
+    private final Map<NodeRef<Match>, TableHandle> matchs = new LinkedHashMap<>();
 
     private final Map<NodeRef<Expression>, Type> types = new LinkedHashMap<>();
     private final Map<NodeRef<Expression>, Type> coercions = new LinkedHashMap<>();
@@ -442,6 +444,11 @@ public class Analysis
         return tables.get(NodeRef.of(table));
     }
 
+    public TableHandle getTableHandle(Match match)
+    {
+        return matchs.get(NodeRef.of(match));
+    }
+
     public Collection<TableHandle> getTables()
     {
         return unmodifiableCollection(tables.values());
@@ -450,6 +457,11 @@ public class Analysis
     public void registerTable(Table table, TableHandle handle)
     {
         tables.put(NodeRef.of(table), handle);
+    }
+
+    public void registerMatch(Match match, TableHandle handle)
+    {
+        matchs.put(NodeRef.of(match), handle);
     }
 
     public FunctionHandle getFunctionHandle(FunctionCall function)

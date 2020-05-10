@@ -26,6 +26,7 @@ import com.facebook.presto.spi.plan.AggregationNode;
 import com.facebook.presto.spi.plan.Assignments;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.LimitNode;
+import com.facebook.presto.spi.plan.MatchNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeIdAllocator;
 import com.facebook.presto.spi.plan.ProjectNode;
@@ -568,6 +569,12 @@ public class AddExchanges
         public PlanWithProperties visitTableScan(TableScanNode node, PreferredProperties preferredProperties)
         {
             return planTableScan(node, TRUE_CONSTANT);
+        }
+
+        @Override
+        public PlanWithProperties visitMatch(MatchNode node, PreferredProperties context)
+        {
+            return new PlanWithProperties(node);
         }
 
         @Override

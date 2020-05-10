@@ -21,6 +21,7 @@ import com.facebook.presto.spi.LocalProperty;
 import com.facebook.presto.spi.plan.AggregationNode;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.LimitNode;
+import com.facebook.presto.spi.plan.MatchNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.ProjectNode;
 import com.facebook.presto.spi.plan.TableScanNode;
@@ -274,6 +275,12 @@ public final class StreamPropertyDerivations
                 return new StreamProperties(MULTIPLE, Optional.empty(), false);
             }
             return new StreamProperties(MULTIPLE, streamPartitionSymbols, false);
+        }
+
+        @Override
+        public StreamProperties visitMatch(MatchNode node, List<StreamProperties> context)
+        {
+            return StreamProperties.singleStream();
         }
 
         private Optional<Set<VariableReferenceExpression>> getNonConstantVariables(Set<ColumnHandle> columnHandles, Map<ColumnHandle, VariableReferenceExpression> assignments, Set<ColumnHandle> globalConstants)
