@@ -75,6 +75,9 @@ public class Neo4jClient
             if (splitParts2.length != 0 && splitParts2[0].contains(":")) {
                 nodesBuilder.add(splitParts2[0].substring(splitParts2[0].indexOf(":")));
             }
+            else {
+                nodesBuilder.add("");
+            }
         }
 
         splitParts1 = schema.split("\\[");
@@ -84,12 +87,15 @@ public class Neo4jClient
             if (s.contains(":")) {
                 relationshipsBuilder.add(s.substring(s.indexOf(":"), (s.contains("*") ? s.indexOf("*") : s.length())));
             }
+            else {
+                relationshipsBuilder.add("");
+            }
         }
 
         ImmutableList<String> nodes = nodesBuilder.build();
         ImmutableList<String> relationships = relationshipsBuilder.build();
         boolean isPath;
-        if (schema.contains("*") || nodes.size() != splitParts1.length || relationships.size() != splitParts1.length - 1) {
+        if (schema.contains("*")) {
             isPath = true;
         }
         else {
@@ -139,6 +145,9 @@ public class Neo4jClient
                 if (parts.length > 1) {
                     columns.addAll(handleLists[1]);
                 }
+                else {
+                    columns.add(new Neo4jColumnHandle(connectorId, "node" + i, new Neo4jTypeHandle(Types.VARCHAR, MAX_LENGTH), toPrestoType(Types.VARCHAR, MAX_LENGTH), false));
+                }
                 if (i != nodes.size() - 1) {
                     parts = relationships.get(i).split(":");
                     handleLists = new ArrayList[parts.length];
@@ -155,6 +164,9 @@ public class Neo4jClient
                     }
                     if (parts.length > 1) {
                         columns.addAll(handleLists[1]);
+                    }
+                    else {
+                        columns.add(new Neo4jColumnHandle(connectorId, "relationship" + i, new Neo4jTypeHandle(Types.VARCHAR, MAX_LENGTH), toPrestoType(Types.VARCHAR, MAX_LENGTH), false));
                     }
                 }
             }

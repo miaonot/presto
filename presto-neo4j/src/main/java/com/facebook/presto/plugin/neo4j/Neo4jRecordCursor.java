@@ -184,11 +184,21 @@ public class Neo4jRecordCursor
             else {
                 if (columnName.substring(0, 4).equals("node")) {
                     num = Integer.parseInt(columnName.substring(4, 5));
-                    return Slices.utf8Slice(nodes.get(num).get(columnName.substring(5)).asString());
+                    if (columnName.matches("^node[0-9]\\d*$")) {
+                        return Slices.utf8Slice(nodes.get(num).asMap().toString());
+                    }
+                    else {
+                        return Slices.utf8Slice(nodes.get(num).get(columnName.substring(5)).asString());
+                    }
                 }
                 else {
                     num = Integer.parseInt(columnName.substring(12, 13));
-                    return Slices.utf8Slice(relationships.get(num).get(columnName.substring(13)).asString());
+                    if (columnName.matches("^relationship[0-9]\\d*$")) {
+                        return Slices.utf8Slice(relationships.get(num).asMap().toString());
+                    }
+                    else {
+                        return Slices.utf8Slice(relationships.get(num).get(columnName.substring(13)).asString());
+                    }
                 }
             }
         }
@@ -219,16 +229,6 @@ public class Neo4jRecordCursor
     {
         checkState(!closed, "cursor is closed");
         throw new PrestoException(Neo4jErrorCode.NEO4J_NOT_SUPPORT, String.format("neo4j connector doesn't support this kind of type: %s", columnHandles[field].getColumnType().getDisplayName()));
-//        String columnName = columnHandles[field].getColumnName();
-//        int num;
-//        if (columnName.substring(0, 4).equals("node")) {
-//            num = Integer.parseInt(columnName.substring(4, 5));
-//            return nodes.get(num).get(columnName.substring(5)).asObject();
-//        }
-//        else {
-//            num = Integer.parseInt(columnName.substring(12, 13));
-//            return relationships.get(num).get(columnName.substring(13)).asObject();
-//        }
     }
 
     @Override
@@ -243,10 +243,16 @@ public class Neo4jRecordCursor
             int num;
             if (columnName.substring(0, 4).equals("node")) {
                 num = Integer.parseInt(columnName.substring(4, 5));
+                if (columnName.matches("^node[0-9]\\d*$")) {
+                    return nodes.get(num).size() == 0;
+                }
                 return nodes.get(num).get(columnName.substring(5)).isNull();
             }
             else {
                 num = Integer.parseInt(columnName.substring(12, 13));
+                if (columnName.matches("^relationship[0-9]\\d*$")) {
+                    return relationships.get(num).size() == 0;
+                }
                 return relationships.get(num).get(columnName.substring(13)).isNull();
             }
         }
