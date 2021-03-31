@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 
 public class GraphPattern
         extends Node
-
 {
     Optional<Identifier> token;
     AnonymousPattern pattern;
@@ -53,6 +52,26 @@ public class GraphPattern
     public List<? extends Node> getChildren()
     {
         return null;
+    }
+
+    public List<String> getNodeTypes()
+    {
+        return pattern.getNodeTypes();
+    }
+
+    public List<String> getRelationshipTypes()
+    {
+        return pattern.getRelationshipTypes();
+    }
+
+    public List<String> getNodeNames()
+    {
+        return pattern.getNodeNames();
+    }
+
+    public List<String> getRelationshipNames()
+    {
+        return pattern.getRelationshipNames();
     }
 
     @Override

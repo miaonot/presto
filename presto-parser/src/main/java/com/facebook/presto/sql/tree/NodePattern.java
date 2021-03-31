@@ -44,6 +44,11 @@ public class NodePattern
         this.labelNames = labelNames;
     }
 
+    public Optional<Identifier> getNodeName()
+    {
+        return nodeName;
+    }
+
     public Optional<LabelNames> getLabelNames()
     {
         return labelNames;

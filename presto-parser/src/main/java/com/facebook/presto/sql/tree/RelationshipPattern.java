@@ -58,6 +58,21 @@ public class RelationshipPattern
         return ImmutableList.of(detail);
     }
 
+    public String getLt()
+    {
+        return lt;
+    }
+
+    public String getRt()
+    {
+        return rt;
+    }
+
+    public RelationshipDetail getDetail()
+    {
+        return detail;
+    }
+
     @Override
     public boolean equals(Object obj)
     {

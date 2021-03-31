@@ -53,6 +53,7 @@ public class Neo4jMetadata
     @Override
     public List<String> listSchemaNames(ConnectorSession session)
     {
+        // Sometimes cause a problem: when use the three-level mode to specify the table, the error below will be thrown
         throw new PrestoException(NEO4J_NOT_SUPPORT, "neo4j not support get schema names");
     }
 
@@ -129,5 +130,17 @@ public class Neo4jMetadata
             }
         }
         return columns.build();
+    }
+
+    @Override
+    public void createTable(ConnectorSession session, ConnectorTableMetadata tableMetadata, boolean ignoreExisting)
+    {
+        neo4jClient.createTable(session, tableMetadata);
+    }
+
+    @Override
+    public void dropTable(ConnectorSession session, ConnectorTableHandle tableHandle)
+    {
+        neo4jClient.dropTable(session, tableHandle);
     }
 }

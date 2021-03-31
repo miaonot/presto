@@ -15,8 +15,10 @@ package com.facebook.presto.plugin.neo4j;
 
 import com.facebook.airlift.bootstrap.LifeCycleManager;
 import com.facebook.airlift.log.Logger;
+import com.facebook.presto.plugin.neo4j.optimization.Neo4jPlanOptimizerProvider;
 import com.facebook.presto.spi.connector.Connector;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
+import com.facebook.presto.spi.connector.ConnectorPlanOptimizerProvider;
 import com.facebook.presto.spi.connector.ConnectorRecordSetProvider;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
@@ -76,6 +78,12 @@ public class Neo4jConnector
     public ConnectorRecordSetProvider getRecordSetProvider()
     {
         return neo4jRecordSetProvider;
+    }
+
+    @Override
+    public ConnectorPlanOptimizerProvider getConnectorPlanOptimizerProvider()
+    {
+        return new Neo4jPlanOptimizerProvider();
     }
 
     @Override

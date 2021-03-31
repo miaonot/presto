@@ -54,11 +54,12 @@ public class TestPruneSemiJoinColumns
                 .doesNotFire();
     }
 
+    //Cannot use string "match" any more, because we use it as a keyword
     @Test
     public void testKeysNotNeeded()
     {
         tester().assertThat(new PruneSemiJoinColumns())
-                .on(p -> buildProjectedSemiJoin(p, variable -> (variable.getName().equals("leftValue") || variable.getName().equals("match"))))
+                .on(p -> buildProjectedSemiJoin(p, variable -> (variable.getName().equals("leftValue") || variable.getName().equals("mat"))))
                 .doesNotFire();
     }
 
@@ -66,11 +67,11 @@ public class TestPruneSemiJoinColumns
     public void testValueNotNeeded()
     {
         tester().assertThat(new PruneSemiJoinColumns())
-                .on(p -> buildProjectedSemiJoin(p, variable -> variable.getName().equals("match")))
+                .on(p -> buildProjectedSemiJoin(p, variable -> variable.getName().equals("mat")))
                 .matches(
                         strictProject(
-                                ImmutableMap.of("match", expression("match")),
-                                semiJoin("leftKey", "rightKey", "match",
+                                ImmutableMap.of("mat", expression("mat")),
+                                semiJoin("leftKey", "rightKey", "mat",
                                         strictProject(
                                                 ImmutableMap.of(
                                                         "leftKey", expression("leftKey"),
@@ -81,7 +82,7 @@ public class TestPruneSemiJoinColumns
 
     private static PlanNode buildProjectedSemiJoin(PlanBuilder p, Predicate<VariableReferenceExpression> projectionFilter)
     {
-        VariableReferenceExpression match = p.variable("match");
+        VariableReferenceExpression match = p.variable("mat");
         VariableReferenceExpression leftKey = p.variable("leftKey");
         VariableReferenceExpression leftKeyHash = p.variable("leftKeyHash");
         VariableReferenceExpression leftValue = p.variable("leftValue");

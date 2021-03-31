@@ -71,6 +71,21 @@ public class RelationshipDetail
         return nodes.build();
     }
 
+    public Optional<Identifier> getRelationName()
+    {
+        return relationName;
+    }
+
+    public Optional<LabelNames> getLabelNames()
+    {
+        return labelNames;
+    }
+
+    public Optional<RelationshipRange> getRange()
+    {
+        return range;
+    }
+
     @Override
     public boolean equals(Object obj)
     {

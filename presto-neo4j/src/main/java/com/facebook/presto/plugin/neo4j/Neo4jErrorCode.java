@@ -18,13 +18,15 @@ import com.facebook.presto.spi.ErrorCodeSupplier;
 import com.facebook.presto.spi.ErrorType;
 
 import static com.facebook.presto.spi.ErrorType.EXTERNAL;
+import static com.facebook.presto.spi.ErrorType.INTERNAL_ERROR;
 
 public enum Neo4jErrorCode
         implements ErrorCodeSupplier
 {
     NEO4J_ERROR(0, EXTERNAL),
     NEO4J_NOT_SUPPORT(1, EXTERNAL),
-    METADATA_ERROR(2, EXTERNAL);
+    METADATA_ERROR(2, EXTERNAL),
+    NOT_SUPPORT(3, INTERNAL_ERROR);
 
     private final ErrorCode errorCode;
 

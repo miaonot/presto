@@ -50,7 +50,14 @@ public class Neo4jSplitManager
                 tableHandle.getTableName(),
                 tableLayoutHandle.getTupleDomain(),
                 Optional.empty(),
-                tableHandle.isPath());
+                tableHandle.getNodeTypes(),
+                tableHandle.getRelationshipTypes(),
+                tableHandle.getNodeNames(),
+                tableHandle.getRelationshipNames(),
+                tableHandle.getArguments(),
+                tableHandle.isPath(),
+                tableHandle.getLimitCount(),
+                tableHandle.getProject());
         return new FixedSplitSource(ImmutableList.of(neo4jSplit));
     }
 }

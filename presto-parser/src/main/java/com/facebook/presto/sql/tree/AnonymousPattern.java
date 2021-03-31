@@ -69,6 +69,52 @@ public class AnonymousPattern
         return nodes.build();
     }
 
+    public List<String> getNodeTypes()
+    {
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
+        builder.add(nodePattern.getLabelNames().map(LabelNames::toString).orElse(""));
+        if (elements.isPresent()) {
+            for (PatternElements element : elements.get()) {
+                builder.add(element.getNodePattern().getLabelNames().map(LabelNames::toString).orElse(""));
+            }
+        }
+        return builder.build();
+    }
+
+    public List<String> getRelationshipTypes()
+    {
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
+        if (elements.isPresent()) {
+            for (PatternElements element : elements.get()) {
+                builder.add(element.getRelationshipPattern().getDetail().getLabelNames().map(LabelNames::toString).orElse(""));
+            }
+        }
+        return builder.build();
+    }
+
+    public List<String> getNodeNames()
+    {
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
+        builder.add(nodePattern.getNodeName().map(Identifier::toString).orElse(""));
+        if (elements.isPresent()) {
+            for (PatternElements elements : elements.get()) {
+                builder.add(elements.getNodePattern().getNodeName().map(Identifier::toString).orElse(""));
+            }
+        }
+        return builder.build();
+    }
+
+    public List<String> getRelationshipNames()
+    {
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
+        if (elements.isPresent()) {
+            for (PatternElements elements : elements.get()) {
+                builder.add(elements.getRelationshipPattern().getDetail().getRelationName().map(Identifier::toString).orElse(""));
+            }
+        }
+        return builder.build();
+    }
+
     @Override
     public boolean equals(Object obj)
     {

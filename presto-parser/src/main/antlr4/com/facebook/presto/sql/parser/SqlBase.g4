@@ -295,7 +295,11 @@ aliasedRelation
     ;
 
 match
-    : MATCH graphPattern AS identifier columnAliases?
+    : MATCH graphPattern (CALL graphFunc)? AS identifier columnAliases?
+    ;
+
+graphFunc
+    : '(' expression (',' expression)* ')'
     ;
 
 columnAliases

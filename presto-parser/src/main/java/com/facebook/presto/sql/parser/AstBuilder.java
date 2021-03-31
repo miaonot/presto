@@ -73,6 +73,7 @@ import com.facebook.presto.sql.tree.GenericLiteral;
 import com.facebook.presto.sql.tree.Grant;
 import com.facebook.presto.sql.tree.GrantRoles;
 import com.facebook.presto.sql.tree.GrantorSpecification;
+import com.facebook.presto.sql.tree.GraphFunc;
 import com.facebook.presto.sql.tree.GraphPattern;
 import com.facebook.presto.sql.tree.GroupBy;
 import com.facebook.presto.sql.tree.GroupingElement;
@@ -1165,7 +1166,9 @@ class AstBuilder
         if (context.columnAliases() != null) {
             columnAliases = Optional.of(visit(context.columnAliases().identifier(), Identifier.class));
         }
-        return new Match(getLocation(context), graphPattern, name, columnAliases);
+
+        Optional<GraphFunc> graphFunc = visitIfPresent(context.graphFunc(), GraphFunc.class);
+        return new Match(getLocation(context), graphPattern, graphFunc, name, columnAliases);
     }
 
     @Override
@@ -1176,6 +1179,12 @@ class AstBuilder
         AnonymousPattern anonymousPattern = (AnonymousPattern) visit(context.anonymousPattern());
 
         return new GraphPattern(getLocation(context), token, anonymousPattern);
+    }
+
+    @Override
+    public Node visitGraphFunc(SqlBaseParser.GraphFuncContext context)
+    {
+        return new GraphFunc(getLocation(context), visit(context.expression(), Expression.class));
     }
 
     @Override
@@ -1232,10 +1241,16 @@ class AstBuilder
     @Override
     public Node visitRelationshipRange(SqlBaseParser.RelationshipRangeContext context)
     {
-        return new RelationshipRange(
-                getLocation(context),
-                Optional.of(Integer.valueOf(context.lower.getText())),
-                Optional.of(Integer.valueOf(context.higher.getText())));
+        Optional<Integer> lower = Optional.empty();
+        if (context.lower != null) {
+            lower = Optional.of(Integer.valueOf(context.lower.getText()));
+        }
+
+        Optional<Integer> higher = Optional.empty();
+        if (context.higher != null) {
+            higher = Optional.of(Integer.valueOf(context.higher.getText()));
+        }
+        return new RelationshipRange(getLocation(context), lower, higher);
     }
 
     @Override

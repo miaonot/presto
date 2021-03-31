@@ -19,6 +19,8 @@ import com.facebook.presto.spi.relation.VariableReferenceExpression;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +28,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
-public class MatchNode
+@Immutable
+public final class MatchNode
         extends PlanNode
 {
     private final String matchStatement;

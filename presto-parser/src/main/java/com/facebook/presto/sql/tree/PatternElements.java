@@ -54,6 +54,16 @@ public class PatternElements
         return ImmutableList.of(relationshipPattern, nodePattern);
     }
 
+    public RelationshipPattern getRelationshipPattern()
+    {
+        return relationshipPattern;
+    }
+
+    public NodePattern getNodePattern()
+    {
+        return nodePattern;
+    }
+
     @Override
     public boolean equals(Object obj)
     {

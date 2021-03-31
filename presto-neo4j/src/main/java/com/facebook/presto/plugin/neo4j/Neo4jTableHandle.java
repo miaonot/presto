@@ -18,11 +18,13 @@ import com.facebook.presto.spi.SchemaTableName;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
@@ -35,9 +37,15 @@ public class Neo4jTableHandle
     private final String schemaName;
     private final String tableName;
 
-    private final List<String> nodes;
-    private final List<String> relationships;
+    private final List<String> nodeTypes;
+    private final List<String> relationshipTypes;
+    private final List<String> nodeNames;
+    private final List<String> relationshipNames;
+    private final List<String> arguments;
     private final boolean isPath;
+
+    private final Optional<Long> limitCount;
+    private final Optional<List<String>> project;
 
     @JsonCreator
     public Neo4jTableHandle(
@@ -46,18 +54,54 @@ public class Neo4jTableHandle
             @JsonProperty("catalogName") @Nullable String catalogName,
             @JsonProperty("schemaName") @Nullable String schemaName,
             @JsonProperty("tableName") String tableName,
-            @JsonProperty("nodes") List<String> nodes,
-            @JsonProperty("relationships") List<String> relationships,
-            @JsonProperty("isPath") boolean isPath)
+            @JsonProperty("nodeTypes") List<String> nodeTypes,
+            @JsonProperty("relationshipTypes") List<String> relationshipTypes,
+            @JsonProperty("nodeNames") List<String> nodeNames,
+            @JsonProperty("relationshipNames") List<String> relationshipNames,
+            @JsonProperty("arguments") List<String> arguments,
+            @JsonProperty("isPath") boolean isPath,
+            @JsonProperty("limitCount")Optional<Long> limitCount,
+            @JsonProperty("project")Optional<List<String>> project)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
         this.schemaTableName = requireNonNull(schemaTableName, "schemaTableName is null");
         this.catalogName = catalogName;
         this.schemaName = schemaName;
         this.tableName = requireNonNull(tableName, "tableName is null");
-        this.nodes = requireNonNull(nodes, "nodesAndRelations is null");
-        this.relationships = requireNonNull(relationships, "relationships is null");
+        this.nodeTypes = requireNonNull(nodeTypes, "nodeTypes is null");
+        this.relationshipTypes = requireNonNull(relationshipTypes, "relationshipTypes is null");
+        this.nodeNames = requireNonNull(nodeNames, "nodeNames is null");
+        this.relationshipNames = requireNonNull(relationshipNames, "relationshipNames is null");
+        this.arguments = requireNonNull(arguments, "arguments is null");
         this.isPath = isPath;
+        this.limitCount = requireNonNull(limitCount, "limitCount is null");
+        this.project = requireNonNull(project, "project is null");
+    }
+
+    public Neo4jTableHandle(
+            @JsonProperty("connectorId") String connectorId,
+            @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
+            @JsonProperty("catalogName") @Nullable String catalogName,
+            @JsonProperty("schemaName") @Nullable String schemaName,
+            @JsonProperty("tableName") String tableName,
+            @JsonProperty("nodeTypes") List<String> nodeTypes,
+            @JsonProperty("relationshipTypes") List<String> relationshipTypes,
+            @JsonProperty("nodeNames") List<String> nodeNames,
+            @JsonProperty("relationshipNames") List<String> relationshipNames,
+            @JsonProperty("arguments") List<String> arguments,
+            @JsonProperty("isPath") boolean isPath)
+    {
+        this(connectorId, schemaTableName, catalogName, schemaName, tableName, nodeTypes, relationshipTypes, nodeNames, relationshipNames, arguments, isPath, Optional.empty(), Optional.empty());
+    }
+
+    public static Neo4jTableHandle setLimitCount(Neo4jTableHandle old, long count)
+    {
+        return new Neo4jTableHandle(old.connectorId, old.schemaTableName, old.catalogName, old.schemaName, old.tableName, old.nodeTypes, old.relationshipTypes, old.nodeNames, old.relationshipNames, old.arguments, old.isPath, Optional.of(count), old.project);
+    }
+
+    public static Neo4jTableHandle setProject(Neo4jTableHandle old, ImmutableList<String> project)
+    {
+        return new Neo4jTableHandle(old.connectorId, old.schemaTableName, old.catalogName, old.schemaName, old.tableName, old.nodeTypes, old.relationshipTypes, old.nodeNames, old.relationshipNames, old.arguments, old.isPath, old.limitCount, Optional.of(project));
     }
 
     @JsonProperty
@@ -93,21 +137,51 @@ public class Neo4jTableHandle
     }
 
     @JsonProperty
-    public List<String> getNodes()
+    public List<String> getNodeTypes()
     {
-        return nodes;
+        return nodeTypes;
     }
 
     @JsonProperty
-    public List<String> getRelationships()
+    public List<String> getRelationshipTypes()
     {
-        return relationships;
+        return relationshipTypes;
+    }
+
+    @JsonProperty
+    public List<String> getNodeNames()
+    {
+        return nodeNames;
+    }
+
+    @JsonProperty
+    public List<String> getRelationshipNames()
+    {
+        return relationshipNames;
+    }
+
+    @JsonProperty
+    public List<String> getArguments()
+    {
+        return arguments;
     }
 
     @JsonProperty("isPath")
     public boolean isPath()
     {
         return isPath;
+    }
+
+    @JsonProperty
+    public Optional<Long> getLimitCount()
+    {
+        return limitCount;
+    }
+
+    @JsonProperty
+    public Optional<List<String>> getProject()
+    {
+        return project;
     }
 
     @Override
@@ -125,8 +199,9 @@ public class Neo4jTableHandle
                 Objects.equals(catalogName, o.catalogName) &&
                 Objects.equals(schemaName, o.schemaName) &&
                 Objects.equals(tableName, o.tableName) &&
-                Objects.equals(nodes, o.nodes) &&
-                Objects.equals(relationships, o.relationships);
+                Objects.equals(nodeTypes, o.nodeTypes) &&
+                Objects.equals(relationshipTypes, o.relationshipTypes) &&
+                Objects.equals(arguments, o.arguments);
     }
 
     @Override
@@ -138,6 +213,6 @@ public class Neo4jTableHandle
     @Override
     public String toString()
     {
-        return Joiner.on(":").useForNull("null").join(connectorId, schemaTableName, catalogName, schemaName, tableName);
+        return Joiner.on(":").useForNull("null").join(connectorId, schemaTableName, catalogName, schemaName, tableName, arguments);
     }
 }

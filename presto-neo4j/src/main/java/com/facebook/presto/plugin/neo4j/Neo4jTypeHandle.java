@@ -23,15 +23,15 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 public class Neo4jTypeHandle
 {
     private final int type;
-    private final int columnSize;
+    private final String parameters;
 
     @JsonCreator
     public Neo4jTypeHandle(
             @JsonProperty("type") int type,
-            @JsonProperty("columnSize") int columnSize)
+            @JsonProperty("parameters") String parameters)
     {
         this.type = type;
-        this.columnSize = columnSize;
+        this.parameters = parameters;
     }
 
     @JsonProperty
@@ -41,15 +41,15 @@ public class Neo4jTypeHandle
     }
 
     @JsonProperty
-    public int getColumnSize()
+    public String getParameters()
     {
-        return columnSize;
+        return parameters;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(type, columnSize);
+        return Objects.hash(type, parameters);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class Neo4jTypeHandle
         }
         Neo4jTypeHandle that = (Neo4jTypeHandle) o;
         return type == that.type &&
-                columnSize == that.columnSize;
+                parameters == that.parameters;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class Neo4jTypeHandle
     {
         return toStringHelper(this)
                 .add("type", type)
-                .add("columnSize", columnSize)
+                .add("columnSize", parameters)
                 .toString();
     }
 }

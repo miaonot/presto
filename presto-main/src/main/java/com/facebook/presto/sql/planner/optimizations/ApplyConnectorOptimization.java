@@ -22,6 +22,7 @@ import com.facebook.presto.spi.plan.ExceptNode;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.IntersectNode;
 import com.facebook.presto.spi.plan.LimitNode;
+import com.facebook.presto.spi.plan.MatchNode;
 import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeIdAllocator;
 import com.facebook.presto.spi.plan.ProjectNode;
@@ -55,6 +56,7 @@ public class ApplyConnectorOptimization
     static final Set<Class<? extends PlanNode>> CONNECTOR_ACCESSIBLE_PLAN_NODES = ImmutableSet.of(
             FilterNode.class,
             TableScanNode.class,
+            MatchNode.class,
             LimitNode.class,
             TopNNode.class,
             ValuesNode.class,
@@ -178,6 +180,9 @@ public class ApplyConnectorOptimization
             if (node instanceof TableScanNode) {
                 builder.add(((TableScanNode) node).getTable().getConnectorId());
             }
+            else if (node instanceof MatchNode) {
+                builder.add(((MatchNode) node).getTable().getConnectorId());
+            }
             else {
                 builder.add(EMPTY_CONNECTOR_ID);
             }
@@ -201,6 +206,10 @@ public class ApplyConnectorOptimization
             if (node instanceof TableScanNode) {
                 connectorIds = ImmutableSet.of(((TableScanNode) node).getTable().getConnectorId());
                 planNodeTypes = ImmutableSet.of(TableScanNode.class);
+            }
+            else if (node instanceof MatchNode) {
+                connectorIds = ImmutableSet.of(((MatchNode) node).getTable().getConnectorId());
+                planNodeTypes = ImmutableSet.of(MatchNode.class);
             }
             else {
                 connectorIds = ImmutableSet.of(EMPTY_CONNECTOR_ID);

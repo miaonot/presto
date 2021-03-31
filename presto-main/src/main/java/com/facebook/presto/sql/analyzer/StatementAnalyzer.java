@@ -1020,11 +1020,25 @@ class StatementAnalyzer
         @Override
         protected Scope visitMatch(Match match, Optional<Scope> scope)
         {
-            String graphPattern = match.getGraphPattern().toString();
+            ImmutableList.Builder<String> arguments = ImmutableList.builder();
+            if (match.getGraphFunc().isPresent()) {
+                List<Expression> expressions = match.getGraphFunc().get().getExpressions();
+                for (Expression expression : expressions) {
+                    if (expression instanceof Identifier) {
+                        Identifier identifier = (Identifier) expression;
+                        arguments.add(identifier.getValue());
+                    }
+                }
+            }
+
+            List<String> nodeTypes = match.getNodeTypes();
+            List<String> relationshipTypes = match.getRelationshipTypes();
+            List<String> nodeNames = match.getNodeNames();
+            List<String> relationshipNames = match.getRelationshipNames();
 
             //TODO: Catalog name need be decided by metadata db.
             //TODO: Create a new interface to pass graph pattern to get table handle.
-            QualifiedName matchName = QualifiedName.of("neo4j", graphPattern, match.getRelationName().getValue());
+            QualifiedName matchName = QualifiedName.of("neo4j", nodeTypes + "|" + relationshipTypes + "|" + nodeNames + "|" + relationshipNames + "|" + arguments.build(), match.getRelationName().getValue());
             QualifiedObjectName name = createQualifiedObjectName(session, match, matchName);
             Optional<TableHandle> tableHandle = metadata.getTableHandle(session, name);
             TableMetadata tableMetadata = metadata.getTableMetadata(session, tableHandle.get());
