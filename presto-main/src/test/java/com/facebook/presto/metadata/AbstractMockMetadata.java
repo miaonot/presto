@@ -340,6 +340,12 @@ public abstract class AbstractMockMetadata
     }
 
     @Override
+    public ColumnHandle getDeleteRowIdColumnHandle(Session session, TableHandle tableHandle)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public ColumnHandle getUpdateRowIdColumnHandle(Session session, TableHandle tableHandle)
     {
         throw new UnsupportedOperationException();

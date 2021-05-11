@@ -22,6 +22,7 @@ import org.bson.Document;
 
 import java.util.Objects;
 
+import static com.facebook.presto.mongodb.ObjectIdType.OBJECT_ID;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
@@ -29,7 +30,7 @@ public class MongoColumnHandle
         implements ColumnHandle
 {
     public static final String SAMPLE_WEIGHT_COLUMN_NAME = "presto_sample_weight";
-
+    public static final Type DELETE_ROW_ID_TYPE = OBJECT_ID;
     private final String name;
     private final Type type;
     private final boolean hidden;
@@ -73,6 +74,10 @@ public class MongoColumnHandle
         return new Document().append("name", name)
                 .append("type", type.getTypeSignature().toString())
                 .append("hidden", hidden);
+    }
+
+    public static MongoColumnHandle getDeleteRowIdColumnHandle(){
+        return new MongoColumnHandle("$delete_row_id", DELETE_ROW_ID_TYPE,false);
     }
 
     @Override

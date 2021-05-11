@@ -15,39 +15,29 @@ package com.facebook.presto.mongodb;
 
 import com.facebook.airlift.log.Logger;
 import com.facebook.presto.mongodb.MongoIndex.MongodbIndexKey;
-import com.facebook.presto.spi.ColumnHandle;
-import com.facebook.presto.spi.ColumnMetadata;
-import com.facebook.presto.spi.ConnectorInsertTableHandle;
-import com.facebook.presto.spi.ConnectorNewTableLayout;
-import com.facebook.presto.spi.ConnectorOutputTableHandle;
-import com.facebook.presto.spi.ConnectorSession;
-import com.facebook.presto.spi.ConnectorTableHandle;
-import com.facebook.presto.spi.ConnectorTableLayout;
-import com.facebook.presto.spi.ConnectorTableLayoutHandle;
-import com.facebook.presto.spi.ConnectorTableLayoutResult;
-import com.facebook.presto.spi.ConnectorTableMetadata;
-import com.facebook.presto.spi.Constraint;
-import com.facebook.presto.spi.LocalProperty;
-import com.facebook.presto.spi.NotFoundException;
-import com.facebook.presto.spi.SchemaTableName;
-import com.facebook.presto.spi.SchemaTablePrefix;
-import com.facebook.presto.spi.SortingProperty;
-import com.facebook.presto.spi.TableNotFoundException;
+import com.facebook.presto.spi.*;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.facebook.presto.spi.connector.ConnectorOutputMetadata;
 import com.facebook.presto.spi.predicate.TupleDomain;
 import com.facebook.presto.spi.statistics.ComputedStatistics;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.DeleteOptions;
+import com.mongodb.client.result.DeleteResult;
 import io.airlift.slice.Slice;
+import org.bson.BsonDocument;
+import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.conversions.Bson;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.facebook.presto.spi.StandardErrorCode.GENERIC_INTERNAL_ERROR;
+import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
@@ -282,8 +272,30 @@ public class MongoMetadata
                         .map(MongoColumnHandle.class::cast)
                         .map(MongoColumnHandle::toColumnMetadata)
                         .collect(toList()));
-
         return new ConnectorTableMetadata(tableName, columns);
+    }
+
+    @Override
+    public ColumnHandle getDeleteRowIdColumnHandle(ConnectorSession session, ConnectorTableHandle tableHandle)
+    {
+        return MongoColumnHandle.getDeleteRowIdColumnHandle();
+        //throw new PrestoException(NOT_SUPPORTED, "MongoDB connector does not support delete");
+    }
+
+    @Override
+    public ConnectorTableHandle beginDelete(ConnectorSession session, ConnectorTableHandle tableHandle){
+        MongoTableHandle handle = (MongoTableHandle) tableHandle;
+        SchemaTableName tableName = handle.getSchemaTableName();
+
+        return tableHandle;
+    }
+
+    @Override
+    public void finishDelete(ConnectorSession session, ConnectorTableHandle tableHandle, Collection<Slice> fragments){
+        MongoTableHandle handle = (MongoTableHandle) tableHandle;
+        List<MongoColumnHandle> columns = mongoSession.getTable(handle.getSchemaTableName()).getColumns();
+        MongoCollection<Document> collection = mongoSession.getCollection(handle.getSchemaTableName());
+
     }
 
     private List<String> listSchemas(ConnectorSession session, String schemaNameOrNull)

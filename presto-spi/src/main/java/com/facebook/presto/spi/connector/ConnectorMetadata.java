@@ -492,6 +492,7 @@ public interface ConnectorMetadata
         throw new PrestoException(GENERIC_INTERNAL_ERROR, "ConnectorMetadata beginInsert() is implemented without finishInsert()");
     }
 
+
     /**
      * Get the column handle that will generate row IDs for the delete operation.
      * These IDs will be passed to the {@code deleteRows()} method of the
@@ -499,7 +500,15 @@ public interface ConnectorMetadata
      */
     default ColumnHandle getUpdateRowIdColumnHandle(ConnectorSession session, ConnectorTableHandle tableHandle)
     {
-        throw new PrestoException(NOT_SUPPORTED, "This connector does not support updates or deletes");
+        throw new PrestoException(NOT_SUPPORTED, "This connector does not support updates");
+    }
+
+    /**
+     * Get the column handle that will generate row IDs for the delete operation.
+     */
+    default ColumnHandle getDeleteRowIdColumnHandle(ConnectorSession session, ConnectorTableHandle tableHandle)
+    {
+        throw new PrestoException(NOT_SUPPORTED, "This connector does not support deletes");
     }
 
     /**
@@ -512,8 +521,6 @@ public interface ConnectorMetadata
 
     /**
      * Finish delete query
-     *
-     * @param fragments all fragments returned by {@link com.facebook.presto.spi.UpdatablePageSource#finish()}
      */
     default void finishDelete(ConnectorSession session, ConnectorTableHandle tableHandle, Collection<Slice> fragments)
     {

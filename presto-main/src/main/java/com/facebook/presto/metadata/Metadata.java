@@ -292,6 +292,11 @@ public interface Metadata
     Optional<ConnectorOutputMetadata> finishInsert(Session session, InsertTableHandle tableHandle, Collection<Slice> fragments, Collection<ComputedStatistics> computedStatistics);
 
     /**
+     * Get the row ID column handle used with deletePageSource.
+     */
+    ColumnHandle getDeleteRowIdColumnHandle(Session session, TableHandle tableHandle);
+
+    /**
      * Get the row ID column handle used with UpdatablePageSource.
      */
     ColumnHandle getUpdateRowIdColumnHandle(Session session, TableHandle tableHandle);
