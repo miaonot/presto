@@ -16,6 +16,7 @@ package com.facebook.presto.mongodb;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ColumnMetadata;
 import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.spi.type.VarbinaryType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.Document;
@@ -31,6 +32,7 @@ public class MongoColumnHandle
 {
     public static final String SAMPLE_WEIGHT_COLUMN_NAME = "presto_sample_weight";
     public static final Type DELETE_ROW_ID_TYPE = OBJECT_ID;
+    public static final MongoColumnHandle ROW_ID_HANDLE = new MongoColumnHandle("_id", DELETE_ROW_ID_TYPE,false);
     private final String name;
     private final Type type;
     private final boolean hidden;
@@ -77,7 +79,8 @@ public class MongoColumnHandle
     }
 
     public static MongoColumnHandle getDeleteRowIdColumnHandle(){
-        return new MongoColumnHandle("$delete_row_id", DELETE_ROW_ID_TYPE,false);
+        return ROW_ID_HANDLE;
+        //return new MongoColumnHandle("_id", DELETE_ROW_ID_TYPE,false);
     }
 
     @Override

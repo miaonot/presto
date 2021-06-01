@@ -285,17 +285,11 @@ public class MongoMetadata
     @Override
     public ConnectorTableHandle beginDelete(ConnectorSession session, ConnectorTableHandle tableHandle){
         MongoTableHandle handle = (MongoTableHandle) tableHandle;
-        SchemaTableName tableName = handle.getSchemaTableName();
-
-        return tableHandle;
+        return handle;
     }
 
     @Override
     public void finishDelete(ConnectorSession session, ConnectorTableHandle tableHandle, Collection<Slice> fragments){
-        MongoTableHandle handle = (MongoTableHandle) tableHandle;
-        List<MongoColumnHandle> columns = mongoSession.getTable(handle.getSchemaTableName()).getColumns();
-        MongoCollection<Document> collection = mongoSession.getCollection(handle.getSchemaTableName());
-
     }
 
     private List<String> listSchemas(ConnectorSession session, String schemaNameOrNull)

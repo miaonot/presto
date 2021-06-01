@@ -54,6 +54,10 @@ public class MongoPageSourceProvider
             handles.add((MongoColumnHandle) handle);
         }
 
-        return new MongoPageSource(mongoSession, mongodbSplit, handles.build());
+        if(columns.contains(MongoColumnHandle.ROW_ID_HANDLE)){
+            return new MongoUpdatablePageSource(mongoSession, mongodbSplit, handles.build());
+        }else{
+            return new MongoPageSource(mongoSession, mongodbSplit, handles.build());
+        }
     }
 }
