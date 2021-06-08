@@ -27,24 +27,59 @@
  */
 package com.facebook.presto.plugin.neo4j.optimization;
 
+import com.facebook.presto.plugin.neo4j.optimization.function.OperatorTranslators;
 import com.facebook.presto.spi.ConnectorPlanOptimizer;
 import com.facebook.presto.spi.connector.ConnectorPlanOptimizerProvider;
+import com.facebook.presto.spi.function.FunctionMetadataManager;
+import com.facebook.presto.spi.function.StandardFunctionResolution;
+import com.facebook.presto.spi.relation.DeterminismEvaluator;
+import com.facebook.presto.spi.relation.ExpressionOptimizer;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
 
 import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 public class Neo4jPlanOptimizerProvider
         implements ConnectorPlanOptimizerProvider
 {
+    private final FunctionMetadataManager functionManager;
+    private final StandardFunctionResolution functionResolution;
+    private final DeterminismEvaluator determinismEvaluator;
+    private final ExpressionOptimizer expressionOptimizer;
+
+    @Inject
+    public Neo4jPlanOptimizerProvider(
+            FunctionMetadataManager functionManager,
+            StandardFunctionResolution functionResolution,
+            DeterminismEvaluator determinismEvaluator,
+            ExpressionOptimizer expressionOptimizer)
+    {
+        this.functionManager = requireNonNull(functionManager, "functionManager is null");
+        this.functionResolution = requireNonNull(functionResolution, "functionResolution is null");
+        this.determinismEvaluator = requireNonNull(determinismEvaluator, "determinismEvaluator is null");
+        this.expressionOptimizer = requireNonNull(expressionOptimizer, "expressionOptimizer is null");
+    }
+
     @Override
     public Set<ConnectorPlanOptimizer> getLogicalPlanOptimizers()
     {
-        return ImmutableSet.of(new Neo4jPushdown());
+        return ImmutableSet.of(new Neo4jPushdown(functionManager,
+                functionResolution,
+                determinismEvaluator,
+                expressionOptimizer,
+                getFunctionTranslators()));
     }
 
     @Override
     public Set<ConnectorPlanOptimizer> getPhysicalPlanOptimizers()
     {
         return ImmutableSet.of();
+    }
+
+    private Set<Class<?>> getFunctionTranslators()
+    {
+        return ImmutableSet.of(OperatorTranslators.class);
     }
 }

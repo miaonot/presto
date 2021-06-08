@@ -22,8 +22,6 @@ import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 
-import java.util.Optional;
-
 import static java.util.Objects.requireNonNull;
 
 public class Neo4jSplitManager
@@ -49,7 +47,6 @@ public class Neo4jSplitManager
                 tableHandle.getSchemaName(),
                 tableHandle.getTableName(),
                 tableLayoutHandle.getTupleDomain(),
-                Optional.empty(),
                 tableHandle.getNodeTypes(),
                 tableHandle.getRelationshipTypes(),
                 tableHandle.getNodeNames(),
@@ -57,7 +54,8 @@ public class Neo4jSplitManager
                 tableHandle.getArguments(),
                 tableHandle.isPath(),
                 tableHandle.getLimitCount(),
-                tableHandle.getProject());
+                tableHandle.getProject(),
+                tableHandle.getPredicate());
         return new FixedSplitSource(ImmutableList.of(neo4jSplit));
     }
 }

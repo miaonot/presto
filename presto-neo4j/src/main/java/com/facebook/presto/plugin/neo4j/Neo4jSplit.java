@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.plugin.neo4j;
 
+import com.facebook.presto.plugin.neo4j.optimization.CypherExpression;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.HostAddress;
@@ -38,7 +39,6 @@ public class Neo4jSplit
     private final String schemaName;
     private final String tableName;
     private final TupleDomain<ColumnHandle> tupleDomain;
-    private final Optional<String> additionalPredicate;
 
     private final List<String> nodeTypes;
     private final List<String> relationshipTypes;
@@ -48,6 +48,7 @@ public class Neo4jSplit
     private final boolean isPath;
     private final Optional<Long> limitCount;
     private final Optional<List<String>> project;
+    private final Optional<CypherExpression> predicate;
 
     @JsonCreator
     public Neo4jSplit(
@@ -56,7 +57,6 @@ public class Neo4jSplit
             @JsonProperty("schemaName") String schemaName,
             @JsonProperty("tableName") String tableName,
             @JsonProperty("tupleDomain") TupleDomain<ColumnHandle> tupleDomain,
-            @JsonProperty("additionalPredicate") Optional<String> additionalPredicate,
             @JsonProperty("nodeTypes") List<String> nodeTypes,
             @JsonProperty("relationshipTypes") List<String> relationshipTypes,
             @JsonProperty("nodeNames") List<String> nodeNames,
@@ -64,14 +64,14 @@ public class Neo4jSplit
             @JsonProperty("arguments") List<String> arguments,
             @JsonProperty("isPath") boolean isPath,
             @JsonProperty("limitCount") Optional<Long> limitCount,
-            @JsonProperty("project") Optional<List<String>> project)
+            @JsonProperty("project") Optional<List<String>> project,
+            @JsonProperty("predicate") Optional<CypherExpression> predicate)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
         this.catalogName = catalogName;
         this.schemaName = requireNonNull(schemaName, "schemaName is null");
         this.tableName = requireNonNull(tableName, "tableName is null");
         this.tupleDomain = requireNonNull(tupleDomain, "tupleDomain is null");
-        this.additionalPredicate = requireNonNull(additionalPredicate, "additionalPredicate is null");
         this.nodeTypes = requireNonNull(nodeTypes, "nodeTypes is null");
         this.relationshipTypes = requireNonNull(relationshipTypes, "relationshipTypes is null");
         this.nodeNames = requireNonNull(nodeNames, "nodeNames is null");
@@ -80,6 +80,7 @@ public class Neo4jSplit
         this.isPath = isPath;
         this.limitCount = requireNonNull(limitCount, "limitCount is null");
         this.project = requireNonNull(project, "project is null");
+        this.predicate = requireNonNull(predicate, "predicate is null");
     }
 
     @JsonProperty
@@ -111,12 +112,6 @@ public class Neo4jSplit
     public TupleDomain<ColumnHandle> getTupleDomain()
     {
         return tupleDomain;
-    }
-
-    @JsonProperty
-    public Optional<String> getAdditionalPredicate()
-    {
-        return additionalPredicate;
     }
 
     @JsonProperty
@@ -165,6 +160,12 @@ public class Neo4jSplit
     public Optional<List<String>> getProject()
     {
         return project;
+    }
+
+    @JsonProperty
+    public Optional<CypherExpression> getPredicate()
+    {
+        return predicate;
     }
 
     @Override

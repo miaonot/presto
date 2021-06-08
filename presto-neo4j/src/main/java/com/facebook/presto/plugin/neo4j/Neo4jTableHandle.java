@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.plugin.neo4j;
 
+import com.facebook.presto.plugin.neo4j.optimization.CypherExpression;
 import com.facebook.presto.spi.ConnectorTableHandle;
 import com.facebook.presto.spi.SchemaTableName;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -46,6 +47,7 @@ public class Neo4jTableHandle
 
     private final Optional<Long> limitCount;
     private final Optional<List<String>> project;
+    private final Optional<CypherExpression> predicate;
 
     @JsonCreator
     public Neo4jTableHandle(
@@ -60,8 +62,9 @@ public class Neo4jTableHandle
             @JsonProperty("relationshipNames") List<String> relationshipNames,
             @JsonProperty("arguments") List<String> arguments,
             @JsonProperty("isPath") boolean isPath,
-            @JsonProperty("limitCount")Optional<Long> limitCount,
-            @JsonProperty("project")Optional<List<String>> project)
+            @JsonProperty("limitCount") Optional<Long> limitCount,
+            @JsonProperty("project") Optional<List<String>> project,
+            @JsonProperty("predicate") Optional<CypherExpression> predicate)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
         this.schemaTableName = requireNonNull(schemaTableName, "schemaTableName is null");
@@ -76,6 +79,7 @@ public class Neo4jTableHandle
         this.isPath = isPath;
         this.limitCount = requireNonNull(limitCount, "limitCount is null");
         this.project = requireNonNull(project, "project is null");
+        this.predicate = requireNonNull(predicate, "predicate is null");
     }
 
     public Neo4jTableHandle(
@@ -91,17 +95,22 @@ public class Neo4jTableHandle
             @JsonProperty("arguments") List<String> arguments,
             @JsonProperty("isPath") boolean isPath)
     {
-        this(connectorId, schemaTableName, catalogName, schemaName, tableName, nodeTypes, relationshipTypes, nodeNames, relationshipNames, arguments, isPath, Optional.empty(), Optional.empty());
+        this(connectorId, schemaTableName, catalogName, schemaName, tableName, nodeTypes, relationshipTypes, nodeNames, relationshipNames, arguments, isPath, Optional.empty(), Optional.empty(), Optional.empty());
     }
 
     public static Neo4jTableHandle setLimitCount(Neo4jTableHandle old, long count)
     {
-        return new Neo4jTableHandle(old.connectorId, old.schemaTableName, old.catalogName, old.schemaName, old.tableName, old.nodeTypes, old.relationshipTypes, old.nodeNames, old.relationshipNames, old.arguments, old.isPath, Optional.of(count), old.project);
+        return new Neo4jTableHandle(old.connectorId, old.schemaTableName, old.catalogName, old.schemaName, old.tableName, old.nodeTypes, old.relationshipTypes, old.nodeNames, old.relationshipNames, old.arguments, old.isPath, Optional.of(count), old.project, old.predicate);
     }
 
     public static Neo4jTableHandle setProject(Neo4jTableHandle old, ImmutableList<String> project)
     {
-        return new Neo4jTableHandle(old.connectorId, old.schemaTableName, old.catalogName, old.schemaName, old.tableName, old.nodeTypes, old.relationshipTypes, old.nodeNames, old.relationshipNames, old.arguments, old.isPath, old.limitCount, Optional.of(project));
+        return new Neo4jTableHandle(old.connectorId, old.schemaTableName, old.catalogName, old.schemaName, old.tableName, old.nodeTypes, old.relationshipTypes, old.nodeNames, old.relationshipNames, old.arguments, old.isPath, old.limitCount, Optional.of(project), old.predicate);
+    }
+
+    public static Neo4jTableHandle setPredicate(Neo4jTableHandle old, CypherExpression predicate)
+    {
+        return new Neo4jTableHandle(old.connectorId, old.schemaTableName, old.catalogName, old.schemaName, old.tableName, old.nodeTypes, old.relationshipTypes, old.nodeNames, old.relationshipNames, old.arguments, old.isPath, old.limitCount, old.project, Optional.of(predicate));
     }
 
     @JsonProperty
@@ -182,6 +191,12 @@ public class Neo4jTableHandle
     public Optional<List<String>> getProject()
     {
         return project;
+    }
+
+    @JsonProperty
+    public Optional<CypherExpression> getPredicate()
+    {
+        return predicate;
     }
 
     @Override

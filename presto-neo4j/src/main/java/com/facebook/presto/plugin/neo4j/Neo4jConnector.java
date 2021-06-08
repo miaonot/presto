@@ -22,6 +22,9 @@ import com.facebook.presto.spi.connector.ConnectorPlanOptimizerProvider;
 import com.facebook.presto.spi.connector.ConnectorRecordSetProvider;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
+import com.facebook.presto.spi.function.FunctionMetadataManager;
+import com.facebook.presto.spi.function.StandardFunctionResolution;
+import com.facebook.presto.spi.relation.RowExpressionService;
 import com.facebook.presto.spi.transaction.IsolationLevel;
 import com.google.inject.Inject;
 
@@ -42,17 +45,28 @@ public class Neo4jConnector
 
     private final ConcurrentMap<ConnectorTransactionHandle, Neo4jMetadata> transactions = new ConcurrentHashMap<>();
 
+    private final FunctionMetadataManager functionManager;
+    private final StandardFunctionResolution functionResolution;
+    private final RowExpressionService rowExpressionService;
+
     @Inject
     public Neo4jConnector(
             LifeCycleManager lifeCycleManager,
             Neo4jMetadata neo4jMetadata,
             Neo4jSplitManager neo4jSplitManager,
-            Neo4jRecordSetProvider neo4jRecordSetProvider)
+            Neo4jRecordSetProvider neo4jRecordSetProvider,
+            FunctionMetadataManager functionManager,
+            StandardFunctionResolution functionResolution,
+            RowExpressionService rowExpressionService,
+            Neo4jClient neo4jClient)
     {
         this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.neo4jMetadata = requireNonNull(neo4jMetadata, "neo4jMetadata is null");
         this.neo4jSplitManager = requireNonNull(neo4jSplitManager, "neo4jSplitManager is null");
         this.neo4jRecordSetProvider = requireNonNull(neo4jRecordSetProvider, "neo4jRecordSetProvider is null");
+        this.functionManager = requireNonNull(functionManager, "functionManager is null");
+        this.functionResolution = requireNonNull(functionResolution, "functionResolution is null");
+        this.rowExpressionService = requireNonNull(rowExpressionService, "rowExpressionService is null");
     }
 
     //TODO: Support transaction. Use factory to instantiate Neo4jMetadata.
@@ -83,7 +97,11 @@ public class Neo4jConnector
     @Override
     public ConnectorPlanOptimizerProvider getConnectorPlanOptimizerProvider()
     {
-        return new Neo4jPlanOptimizerProvider();
+        return new Neo4jPlanOptimizerProvider(
+                functionManager,
+                functionResolution,
+                rowExpressionService.getDeterminismEvaluator(),
+                rowExpressionService.getExpressionOptimizer());
     }
 
     @Override

@@ -19,6 +19,9 @@ import com.facebook.presto.spi.classloader.ThreadContextClassLoader;
 import com.facebook.presto.spi.connector.Connector;
 import com.facebook.presto.spi.connector.ConnectorContext;
 import com.facebook.presto.spi.connector.ConnectorFactory;
+import com.facebook.presto.spi.function.FunctionMetadataManager;
+import com.facebook.presto.spi.function.StandardFunctionResolution;
+import com.facebook.presto.spi.relation.RowExpressionService;
 import com.google.inject.Injector;
 
 import java.util.Map;
@@ -54,7 +57,13 @@ public class Neo4jConnectorFactory
         requireNonNull(requiredConfig, "requiredConfig is null");
 
         try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(classLoader)) {
-            Bootstrap app = new Bootstrap(new Neo4jModule((catalogName)));
+            Bootstrap app = new Bootstrap(
+                    binder -> {
+                        binder.bind(FunctionMetadataManager.class).toInstance(context.getFunctionMetadataManager());
+                        binder.bind(StandardFunctionResolution.class).toInstance(context.getStandardFunctionResolution());
+                        binder.bind(RowExpressionService.class).toInstance(context.getRowExpressionService());
+                    },
+                    new Neo4jModule((catalogName)));
 
             Injector injector = app
                     .strictConfig()

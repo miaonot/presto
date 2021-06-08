@@ -14,9 +14,12 @@
 package com.facebook.presto.plugin.neo4j;
 
 import com.facebook.airlift.log.Logger;
+import com.facebook.presto.plugin.neo4j.optimization.CypherExpression;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.type.Type;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 import org.neo4j.driver.Record;
@@ -64,6 +67,7 @@ public class Neo4jRecordCursor
         List<String> relationshipNames = split.getRelationshipNames();
         List<String> arguments = split.getArguments();
         Optional<List<String>> project = split.getProject();
+        Optional<CypherExpression> predicate = split.getPredicate();
 
         if (arguments.size() != 0) {
             isSequential = true;
@@ -106,6 +110,15 @@ public class Neo4jRecordCursor
         }
         else {
             statement.append("(node").append(i).append(nodeTypes.get(i)).append(") ");
+        }
+        List<String> clauses = ImmutableList.of();
+        if (predicate.isPresent()) {
+            clauses = ImmutableList.<String>builder()
+                    .add(predicate.get().getExpression())
+                    .build();
+        }
+        if (!clauses.isEmpty()) {
+            statement.append("WHERE ").append(Joiner.on(" AND ").join(clauses));
         }
         if (project.isPresent()) {
             isSequential = true;

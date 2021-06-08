@@ -27,12 +27,16 @@
  */
 package com.facebook.presto.plugin.neo4j.optimization;
 
+import com.facebook.presto.expressions.LogicalRowExpressions;
+import com.facebook.presto.expressions.translator.TranslatedExpression;
 import com.facebook.presto.plugin.neo4j.Neo4jTableHandle;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorPlanOptimizer;
 import com.facebook.presto.spi.ConnectorSession;
 import com.facebook.presto.spi.TableHandle;
 import com.facebook.presto.spi.VariableAllocator;
+import com.facebook.presto.spi.function.FunctionMetadataManager;
+import com.facebook.presto.spi.function.StandardFunctionResolution;
 import com.facebook.presto.spi.plan.FilterNode;
 import com.facebook.presto.spi.plan.LimitNode;
 import com.facebook.presto.spi.plan.MatchNode;
@@ -40,17 +44,50 @@ import com.facebook.presto.spi.plan.PlanNode;
 import com.facebook.presto.spi.plan.PlanNodeIdAllocator;
 import com.facebook.presto.spi.plan.PlanVisitor;
 import com.facebook.presto.spi.plan.ProjectNode;
+import com.facebook.presto.spi.relation.DeterminismEvaluator;
+import com.facebook.presto.spi.relation.ExpressionOptimizer;
+import com.facebook.presto.spi.relation.RowExpression;
 import com.facebook.presto.spi.relation.VariableReferenceExpression;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
+import java.util.Set;
 
+import static com.facebook.presto.expressions.translator.FunctionTranslator.buildFunctionTranslator;
+import static com.facebook.presto.expressions.translator.RowExpressionTreeTranslator.translateWith;
+import static com.facebook.presto.spi.relation.ExpressionOptimizer.Level.OPTIMIZED;
 import static java.util.Objects.requireNonNull;
 
 public class Neo4jPushdown
         implements ConnectorPlanOptimizer
 {
+    private final ExpressionOptimizer expressionOptimizer;
+    private final LogicalRowExpressions logicalRowExpressions;
+    private final JdbcFilterToCypherTranslator jdbcFilterToCypherTranslator;
+
+    public Neo4jPushdown(
+            FunctionMetadataManager functionMetadataManager,
+            StandardFunctionResolution functionResolution,
+            DeterminismEvaluator determinismEvaluator,
+            ExpressionOptimizer expressionOptimizer,
+            Set<Class<?>> functionTranslators)
+    {
+        requireNonNull(functionMetadataManager, "functionMetadataManager is null");
+        requireNonNull(functionTranslators, "functionTranslators is null");
+        requireNonNull(determinismEvaluator, "determinismEvaluator is null");
+        requireNonNull(functionResolution, "functionResolution is null");
+
+        this.expressionOptimizer = requireNonNull(expressionOptimizer, "expressionOptimizer is null");
+        this.jdbcFilterToCypherTranslator = new JdbcFilterToCypherTranslator(
+                functionMetadataManager,
+                buildFunctionTranslator(functionTranslators));
+        this.logicalRowExpressions = new LogicalRowExpressions(
+                determinismEvaluator,
+                functionResolution,
+                functionMetadataManager);
+    }
+
     @Override
     public PlanNode optimize(PlanNode maxSubplan, ConnectorSession session, VariableAllocator variableAllocator, PlanNodeIdAllocator idAllocator)
     {
@@ -196,10 +233,25 @@ public class Neo4jPushdown
             }
 
             MatchNode oldMatchNode = (MatchNode) node.getSource();
+
+            RowExpression predicate = expressionOptimizer.optimize(node.getPredicate(), OPTIMIZED, session);
+            predicate = logicalRowExpressions.convertToConjunctiveNormalForm(predicate);
+            TranslatedExpression<CypherExpression> cypherExpression = translateWith(
+                    predicate,
+                    jdbcFilterToCypherTranslator,
+                    oldMatchNode.getAssignments());
+
             TableHandle oldTableHandle = oldMatchNode.getTable();
+            if (!cypherExpression.getTranslated().isPresent()) {
+                return node;
+            }
+
             Neo4jTableHandle oldConnectorHandle = (Neo4jTableHandle) oldTableHandle.getConnectorHandle();
 
-            return node;
+            Neo4jTableHandle newConnectorHandle = Neo4jTableHandle.setPredicate(oldConnectorHandle, cypherExpression.getTranslated().get());
+            TableHandle newTableHandle = new TableHandle(oldTableHandle.getConnectorId(), newConnectorHandle, oldTableHandle.getTransaction(), oldTableHandle.getLayout());
+
+            return new MatchNode(idAllocator.getNextId(), newTableHandle, oldMatchNode.getMatchStatement(), oldMatchNode.getOutputVariables(), oldMatchNode.getAssignments());
         }
     }
 }
