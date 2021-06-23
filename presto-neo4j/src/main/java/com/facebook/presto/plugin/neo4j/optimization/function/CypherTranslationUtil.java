@@ -29,6 +29,9 @@ public class CypherTranslationUtil
 
     public static String infixOperation(String operator, CypherExpression left, CypherExpression right)
     {
+        if (right.getBoundConstantValues().get(0).getType().getTypeSignature().getBase().equals("varchar") || right.getBoundConstantValues().get(0).getType().getTypeSignature().getBase().equals("char")) {
+            return String.format("(%s %s '%s')", left.getExpression(), operator, right.getExpression());
+        }
         return String.format("(%s %s %s)", left.getExpression(), operator, right.getExpression());
     }
 
